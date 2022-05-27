@@ -8,13 +8,13 @@ class Question(models.Model):
     ques = models.CharField(max_length= 200)
 
     def __str__(self):
-        return self.name
+        return self.ques
 
 class Answer(models.Model):
     # text = the answer itself
     question = models.ForeignKey(Question, on_delete=models.CASCADE)
-    text = models.CharField(max_length= 300)
+    ans = models.CharField(max_length= 300)
     isCorrect = models.BooleanField()
 
     def __str__(self):
-        return self.text
+        return self.ans
