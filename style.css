@@ -1,0 +1,129 @@
+@font-face {
+    font-family: "Aharoni";
+    src: url(./ahronbd.ttf);
+}
+
+@font-face {
+    font-family: "DejaVu";
+    src: url(./DejaVuSans.ttf);
+}
+
+@font-face {
+    font-family: "Raleway";
+    src: url(./Raleway-SemiBold.ttf);
+}
+
+@font-face {
+    font-family: "Lemon";
+    src: url(./LemonMilk.otf);
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    font-family: "Raleway";
+}
+
+html, body {
+    background: rgb(14,44,94);
+    background: linear-gradient(110deg, rgba(14,44,94,1) 0%, rgba(14,44,94,1) 45%, rgba(255,255,255,1) 60%, rgba(190,152,53,1) 61%, rgba(190,152,53,1) 100%);
+    overflow: hidden;
+    height: 100vh;
+}
+
+#top-bar {
+    position: absolute;
+    top: 0;
+
+    width: 100vw;
+    height: 4rem;
+    background-color: white;
+
+    display: flex;
+    align-items: center;
+
+    box-shadow: 0 0 1rem 0 rgba(0, 0, 0, 0.4);
+
+    
+
+}
+
+#logo {
+    font-family: "Lemon";
+    font-size: 2rem;
+
+    color: #be9835;
+    color: rgb(14, 44, 94);
+
+    display: inline-flex;
+
+}
+
+.spacer {
+    width: calc(100vw - 46rem);
+    display: inline-flex;
+}
+
+.spacer-s {
+    width: 1.5rem;
+    display: inline-flex;
+}
+
+.login {
+    display: inline-flex;
+    justify-content: center;
+    width: 7.5rem;
+    text-decoration: none;
+    color: rgb(14, 44, 94);
+}
+
+.login:active {
+    text-decoration: none;
+    color: rgb(14, 44, 94);
+}
+
+.signup {
+    width: 7.5rem;
+    height: 2rem;
+
+    border: none;
+    border-radius: 0.25rem;
+
+    font-size: 1rem;
+
+    color: white;
+    background-color: #be9835;
+
+    cursor: pointer;
+}
+
+#background-img {
+    position: relative;
+    top: 8rem;
+    left: 6rem;
+    width: calc(100vw - 12rem);
+    height: calc(100vh - 12rem);
+
+    background-color: white;
+    border-radius: 1.5rem;
+
+    box-shadow: 0 0 1rem 0 rgba(0, 0, 0, 0.4);
+}
+
+.tagline {
+    font-family: "Lemon";
+    color: rgb(14, 44, 94);
+    font-size: 3rem;
+}
+
+#tagline-1 {
+    position: absolute;
+    left: 3rem;
+    bottom: 12rem;
+}
+
+#tagline-2 {
+    position: absolute;
+    left: 3rem;
+    bottom:3rem;
+}
