@@ -6,5 +6,8 @@ from .models import Question, Answer
 
 def index(response, number):
     qs = Question.objects.get(number=number)
-    answer = qs.answer_set.get(id=1)
-    return HttpResponse("<h1>%s</h1></br><p>%s</p>" % (qs.name, str(answer.text)))
+    # answer = qs.answer_set.get(id=1)
+    return render(response, "main/question.html", {"qs": qs})
+
+def home(response):
+    return render(response, "main/home.html", {})

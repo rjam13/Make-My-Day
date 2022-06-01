@@ -1,0 +1,18 @@
+{% extends 'main/base.html' %}
+
+{% block title %}
+Question
+{% endblock %}
+
+{% block content %}
+    <h1>{{qs.ques}}</h1>
+    <ul>
+        {% for answer in qs.answer_set.all %}
+            {% if answer.isCorrect %}
+                <li><b>{{answer.ans}}</b></li>
+            {% else %}
+                <li>{{answer.ans}}</li>    
+            {% endif %} 
+        {% endfor %}
+    </ul>
+{% endblock %}

@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+
+<html>
+    <head>
+        <title>{% block title %}Make My Day!{% endblock %}</title>
+        {% load static %}
+        <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    </head>
+
+    <body>
+        <div id="top-bar">
+            <span class="spacer-s"></span>
+            <p id="logo">Make My Day!</p>
+            <span class="spacer"></span>
+            {% block top-bar %}
+
+            {% endblock %}
+        </div>
+        <div id="background-img">
+            {% block content %}
+
+            {% endblock %}
+        </div>
+    </body>
+</html>
