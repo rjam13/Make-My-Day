@@ -20,7 +20,9 @@ from register.form import RegisterForm, UserProfileForm
 
 
 def register(request):
+	print("hi")
 	if request.method == 'POST':
+		print("hello")
 		instance_form = RegisterForm(request.POST)
 		profile_form = UserProfileForm(request.POST)
 		if instance_form.is_valid() and profile_form.is_valid():
@@ -40,6 +42,7 @@ def register(request):
 
 		return redirect("/home")	
 	else:
+		print('wrong')
 		instance_form = RegisterForm()
 		profile_form  = UserProfileForm()
 	context = {'form': instance_form, 'profile_form': profile_form}	
