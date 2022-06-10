@@ -12,19 +12,20 @@
         {% load static %}
         <link rel="stylesheet" href="{% static 'css/style.css' %}">
     </head>
-
     <body>
+
         <div id="top-bar">
             <span class="spacer-s"></span>
             <p id="logo">Make My Day!</p>
             <span class="spacer"></span>
             {% block top-bar %}
-
             {% endblock %}
         </div>
+
+        {% include 'main/messages.html' %}
+
         <div id="background-img">
             {% block content %}
-
             {% endblock %}
         </div>
         <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
