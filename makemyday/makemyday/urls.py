@@ -17,13 +17,12 @@ from atexit import register
 from django.contrib import admin
 from django.urls import path, include
 from register import views as registerViews
-from questions import views as questionViews
 
 urlpatterns = [
     path("admin/", admin.site.urls),
-    path("<int:question_id>", questionViews.index, name="index"),
     path("register/", registerViews.register, name="register"),
     path("login", registerViews.login_request, name="login"),
     path("logout", registerViews.logout_request, name= "logout"), 
+    path("question-banks/", include("questions.urls", namespace="question_banks")),
     path("", include("main.urls")),
 ]

@@ -47,7 +47,7 @@ class Course(models.Model):
     instructors = models.ManyToManyField(Instructor, related_name="instructors+")
     students = models.ManyToManyField(Student, related_name="students+")
 
-    course_id = models.BigAutoField(primary_key=True, default=0, db_column="course_id")
+    course_id = models.BigAutoField(primary_key=True, db_column="course_id")
     course_name = models.CharField(max_length=255)
     description = models.TextField(default="")
 

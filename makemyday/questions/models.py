@@ -6,7 +6,7 @@ from main.models import Course, Student
 class Question_Bank(models.Model):
     course = models.ForeignKey(Course, on_delete=models.CASCADE, default=None)
     assigned_students = models.ManyToManyField(Student, through="Activated_Question_Bank")
-    question_bank_id = models.BigAutoField(primary_key=True, default=0, db_column="question_bank_id")
+    question_bank_id = models.BigAutoField(primary_key=True, db_column="question_bank_id")
     
     topic = models.CharField(max_length=255, default="Topic")
     start_date = models.DateTimeField(null=True)
@@ -44,12 +44,13 @@ class Activated_Question_Bank(models.Model):
 class Question(models.Model):
     question_bank = models.ForeignKey(Question_Bank, on_delete=models.CASCADE, default=None)
 
-    question_id = models.BigAutoField(primary_key=True, default=0, db_column="question_id")
+    question_id = models.BigAutoField(primary_key=True, db_column="question_id")
     ques = models.TextField(default="")
     order = models.IntegerField(default=0)
 
     def __str__(self):
-        return str(self.ques)
+        # return str(self.ques)
+        return f"{str(self.ques)} topic: {self.question_bank.topic}"
 
     def get_answers(self):
        return self.answer_set.all()
@@ -57,7 +58,7 @@ class Question(models.Model):
 class Answer(models.Model):
     question = models.ForeignKey(Question, on_delete=models.CASCADE, default=None)
 
-    answer_id = models.BigAutoField(primary_key=True, default=0, db_column="answer_id")
+    answer_id = models.BigAutoField(primary_key=True, db_column="answer_id")
     ans = models.TextField(default="")
     isCorrect = models.BooleanField(default=False)
     explanation = models.TextField(default="")
