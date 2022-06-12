@@ -15,7 +15,6 @@ class UserProfile(models.Model):
     instructor_id = models.CharField(max_length=255, default="")
 
     def save(self, *args, **kwargs):
-        print("foo")
         if self._state.adding:
             super(UserProfile, self).save(*args, **kwargs)
             if self.instructor_id:

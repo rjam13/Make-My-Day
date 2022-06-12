@@ -40,7 +40,7 @@ def register(request):
 			user = authenticate(username = username, password = password)
 			login(request, user)
 
-		return redirect("/home")	
+		return redirect("/")	
 	else:
 		instance_form = RegisterForm()
 		profile_form  = UserProfileForm()
@@ -57,7 +57,7 @@ def login_request(request):
 			if current_user is not None:
 				login(request, current_user)
 				messages.info(request, f"You are now logged in as {username}.")
-				return redirect("/home")
+				return redirect("/")
 			else:
 				messages.error(request,"Invalid username/password.")
 				return redirect("/login")
@@ -69,4 +69,4 @@ def login_request(request):
 def logout_request(request):
 	logout(request)
 	messages.info(request, "You have successfully logged out.") 
-	return redirect("/home")		
+	return redirect("/")		
