@@ -1,5 +1,6 @@
 from django.db import models
 from main.models import Course, Student
+import random
 
 # Create your models here.
 
@@ -30,7 +31,10 @@ class Question_Bank(models.Model):
         return str(self.topic)
 
     def get_questions(self):
-        return self.question_set.all()
+        questions = list(self.question_set.all())
+        if self.isRandom:
+            random.shuffle(questions)
+        return questions
 
 class Activated_Question_Bank(models.Model):
     student = models.ForeignKey(Student, on_delete=models.CASCADE, default=None)
