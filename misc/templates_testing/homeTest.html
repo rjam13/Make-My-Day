@@ -1,9 +1,24 @@
 {% extends 'main/base.html' %}
+{% load static %}
+
+{% block scripts %}
+  <script src="{% static 'base/home.js' %}" defer></script>
+{% endblock scripts %}
 
 {% block title %}
-Home
+Homepage
+{% endblock %}
+
+{% block top-bar %}
+<span id="top-bar-left">
+  <p id="logo">Make My Day!</p>
+  <button id="student-login-button" class="login">Student Login</button>
+  <button id="instructor-login-button" class="login">Instructor Login</button>
+</span>
+<button class="signup" id="register-button">Sign Up!</button>
 {% endblock %}
 
 {% block content %}
-<h1>homepage</h1>
+<p class="tagline" id="tagline-1">Learning...</p>
+<p class="tagline" id="tagline-2">One question<br>at a time.</p>
 {% endblock %}

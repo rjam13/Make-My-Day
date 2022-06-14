@@ -1,0 +1,173 @@
+@font-face {
+  font-family: "Raleway";
+  src: url(./Raleway-SemiBold.ttf);
+}
+
+@font-face {
+  font-family: "Lemon";
+  src: url(./LemonMilk.otf);
+}
+
+:root {
+  --box-shadow: 0 0 1rem 0 rgba(0, 0, 0, 0.4);
+  --gradient: linear-gradient(
+    -10deg,
+    rgba(14, 44, 94, 1) 0%,
+    rgba(14, 44, 94, 1) 45%,
+    rgba(255, 255, 255, 1) 60%,
+    rgba(190, 152, 53, 1) 61%,
+    rgba(190, 152, 53, 1) 100%
+  );
+}
+
+* {
+  margin: 0;
+  padding: 0;
+
+  font-family: "Raleway";
+}
+
+html,
+body {
+  height: 100vh;
+  overflow: hidden;
+
+  background: rgb(14, 44, 94);
+  background: var(--gradient);
+}
+
+#top-bar {
+  position: absolute;
+  top: 0;
+
+  width: 100vw;
+  height: 16.5vw;
+
+  background-color: white;
+
+  box-shadow: var(--box-shadow);
+
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+#top-bar-left {
+  margin-left: 1.75vw;
+}
+
+#logo {
+  font-family: "Lemon";
+  font-size: 7.75vw;
+  color: rgba(14, 44, 94, 1);
+}
+
+.login {
+  text-decoration: none;
+  font-size: 3.5vw;
+  color: rgba(190, 152, 53, 1);
+  margin-right: 3.5vw;
+}
+
+.signup {
+  font-size: 3.5vw;
+  width: 19.5vw;
+  height: 13vw;
+  margin-right: 1.75vw;
+
+  border: none;
+  border-radius: 1.75vw;
+  background-color: rgba(190, 152, 53, 1);
+
+  color: white;
+
+  cursor: pointer;
+}
+
+.tagline {
+  color: white;
+  font-family: "Lemon";
+  font-size: 7.75vw;
+
+  text-shadow: 0 0 1vw rgb(14, 44, 94);
+
+  text-align: right;
+}
+
+#tagline-1 {
+  position: absolute;
+  bottom: 32.75vw;
+  right: 1.75vw;
+}
+
+#tagline-2 {
+  position: absolute;
+  bottom: 9.5vw;
+  right: 1.75vw;
+}
+
+@media only screen and (min-width: 800px) {
+  #top-bar {
+    height: 4rem;
+  }
+  #top-bar-left {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: calc(100vw - 10rem);
+    margin-left: 1rem;
+  }
+  #logo {
+    font-size: 2rem;
+  }
+  #student-login {
+    margin-left: calc(100vw - 41.5rem);
+  }
+  .login {
+    font-size: 1rem;
+    margin: 0;
+  }
+  .signup {
+    font-size: 1rem;
+    height: 3rem;
+    width: 6rem;
+    border-radius: 0.5rem;
+    margin-right: 1rem;
+  }
+
+  #background-img {
+    position: relative;
+    top: 8rem;
+    left: 6rem;
+    width: calc(100vw - 12rem);
+    height: calc(100vh - 12rem);
+
+    background-color: white;
+    border-radius: 1.5rem;
+
+    box-shadow: 0 0 1rem 0 rgba(0, 0, 0, 0.4);
+  }
+
+  .tagline {
+    font-family: "Lemon";
+    color: rgb(14, 44, 94);
+    font-size: 3rem;
+
+    text-align: left;
+    text-shadow: none;
+  }
+
+  #tagline-1 {
+    position: absolute;
+    right: unset;
+    left: 3rem;
+    bottom: 12rem;
+  }
+
+  #tagline-2 {
+    position: absolute;
+    right: unset;
+    left: 3rem;
+    bottom: 3rem;
+  }
+}

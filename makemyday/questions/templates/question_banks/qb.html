@@ -1,8 +1,20 @@
 {% extends 'main/base.html' %}
+{% load static %}
+
+{% block scripts %}
+  <script src="{% static 'question_banks/qb.js' %}" defer></script>
+{% endblock scripts %}
 
 {% block title %} {{qb.topic}} {% endblock %}
 
 {% block content %}
-{{qb.topic}}
+<h1>{{qb.topic}}</h1>
+<p>For submitting, make sure the user your logged into is a student (i.e. has student_id filled when registered).</p>
+<hr>
+<form id="qb-form" class="mt-3 mb-3">
+  {% csrf_token %}
+  <div id="qb-box"></div>>
+  <button type="submit" class="btn btn-primary mt-3">save</button>
+</form>
 {% endblock %}
 
