@@ -14,6 +14,7 @@ def question_bank_view(request, id):
     question_bank = Question_Bank.objects.get(question_bank_id=id)
     return render(request, 'question_banks/qb.html', {'qb': question_bank})
 
+# called injunction with question_bank_view
 def qb_data_view(request, id):
     question_bank = Question_Bank.objects.get(question_bank_id=id)
     questions = []
@@ -26,12 +27,14 @@ def qb_data_view(request, id):
         'data': questions
     })
 
+# called when submitting quiz from website
 def save_qb_view(request, id):
     # print(request.POST)
     if is_ajax(request):
         questions = []
         data = request.POST
-        data_ = dict(data.lists())
+        # contains all the answers provided where keys = questions, values = answers
+        data_ = dict(data.lists()) 
         data_.pop('csrfmiddlewaretoken')
 
         for k in data_.keys():
@@ -40,21 +43,24 @@ def save_qb_view(request, id):
             questions.append(question)
         print(questions)
 
+        # retrieves the student that answered the qb
         user = request.user
         userProf = UserProfile.objects.filter(user=user)[0]
         student = Student.objects.filter(user_profile = userProf)[0]
         
         qb = Question_Bank.objects.get(question_bank_id=id)
 
+        # calculating score and collecting each answer provided, paired with the correct answer, into results
         score = 0
         multiplier = 100 / len(questions)
         results = []
         correct_answer = None
 
         for q in questions:
-            a_selected = request.POST.get(q.ques)
+            a_selected = request.POST.get(q.ques) 
 
             if a_selected != "":
+                # goes through all the answers in the question and compares with the correct one
                 question_answers = Answer.objects.filter(question=q)
                 for a in question_answers:
                     if a_selected == a.ans:
@@ -76,8 +82,3 @@ def save_qb_view(request, id):
 
 def is_ajax(request):
     return request.META.get('HTTP_X_REQUESTED_WITH') == 'XMLHttpRequest'
-
-# def index(response, question_id):
-#     qs = Question.objects.get(question_id=question_id)
-#     # answer = qs.answer_set.get(id=1)
-#     return render(response, "main/question.html", {"qs": qs})
