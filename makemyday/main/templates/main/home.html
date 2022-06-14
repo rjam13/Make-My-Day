@@ -10,6 +10,14 @@ Homepage
 {% endblock %}
 
 {% block top-bar %}
+{% if request.user.is_authenticated %}
+<a class="nav-link" href="#">Welcome, {{user.username}}</a>
+<a href="/logout"> 
+  <button> Logout</button>
+</a>
+<span class="spacer-s"></span>
+<span class="spacer-s"></span>
+{% else %}
 <button class="login" id="student-login-button">Student Login</button>
 <span class="spacer-s"></span>
 <span class="spacer-s"></span>
@@ -18,6 +26,7 @@ Homepage
 <span class="spacer-s"></span>
 <button class="signup" id="register-button">Sign Up!</button>
 <span class="spacer-s"></span>
+{% endif %}
 {% endblock %}
 
 {% block content %}
