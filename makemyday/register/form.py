@@ -1,3 +1,4 @@
+from stat import ST_UID
 from django import forms
 from django.forms import ModelForm
 from django.contrib.auth.forms import UserCreationForm
@@ -27,6 +28,9 @@ class RegisterForm(UserCreationForm):
 		return user
 
 class UserProfileForm(ModelForm):
+	
 	class Meta:	
 		model = UserProfile
 		fields = ('phone', 'student_id', 'instructor_id')		
+
+	
