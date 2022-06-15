@@ -7,13 +7,14 @@ from django.http import JsonResponse
 # Create your views here.
 
 class QuestionBankListView(ListView):
-    model = Question_Bank
+    model = Question_Bank # sets object_list in main_qb.html
     template_name = 'question_banks/main_qb.html'
 
 def question_bank_view(request, id):
     question_bank = Question_Bank.objects.get(question_bank_id=id)
     return render(request, 'question_banks/qb.html', {'qb': question_bank})
 
+# called injunction with question_bank_view
 def qb_data_view(request, id):
     question_bank = Question_Bank.objects.get(question_bank_id=id)
     questions = []
@@ -23,15 +24,17 @@ def qb_data_view(request, id):
             answers.append(a.ans)
         questions.append({str(q): answers})
     return JsonResponse({
-        'data': questions
+        'data': questions,
+        'time_Limit': question_bank.time_Limit,
     })
 
+# called when submitting quiz from website
 def save_qb_view(request, id):
     # print(request.POST)
     if is_ajax(request):
         questions = []
         data = request.POST
-        data_ = dict(data.lists())
+        data_ = dict(data.lists()) # contains all the answers provided where keys = questions, values = answers
         data_.pop('csrfmiddlewaretoken')
 
         for k in data_.keys():
@@ -40,21 +43,26 @@ def save_qb_view(request, id):
             questions.append(question)
         print(questions)
 
+        # retrieves the student that answered the qb
         user = request.user
         userProf = UserProfile.objects.filter(user=user)[0]
         student = Student.objects.filter(user_profile = userProf)[0]
         
         qb = Question_Bank.objects.get(question_bank_id=id)
 
+        # calculating score and collecting each answer provided, paired with the correct answer, into results
         score = 0
         multiplier = 100 / len(questions)
         results = []
         correct_answer = None
 
         for q in questions:
-            a_selected = request.POST.get(q.ques)
+            # find the selected answer for the corresponding question
+            a_selected = request.POST.get(q.ques) 
 
+            # if questions is answered
             if a_selected != "":
+                # goes through all the answers of the question, finds the correct one and compares to selected answer
                 question_answers = Answer.objects.filter(question=q)
                 for a in question_answers:
                     if a_selected == a.ans:
@@ -66,6 +74,7 @@ def save_qb_view(request, id):
                             correct_answer = a.ans
                 
                 results.append({str(q): {'correct_answer': correct_answer, 'answered': a_selected}})
+            # questions is not answered
             else:
                 results.append({str(q): 'not answered'})
             
@@ -76,8 +85,3 @@ def save_qb_view(request, id):
 
 def is_ajax(request):
     return request.META.get('HTTP_X_REQUESTED_WITH') == 'XMLHttpRequest'
-
-# def index(response, question_id):
-#     qs = Question.objects.get(question_id=question_id)
-#     # answer = qs.answer_set.get(id=1)
-#     return render(response, "main/question.html", {"qs": qs})
