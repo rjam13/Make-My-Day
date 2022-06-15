@@ -14,6 +14,7 @@ class Question_Bank(models.Model):
     end_date = models.DateTimeField(null=True)
     number_of_attempts = models.IntegerField(default=3)
     isRandom = models.BooleanField(default=False)
+    time_Limit = models.IntegerField(default=60, help_text="duration of each question in minutes")
     DAILY = "DAILY"
     BIDIURNAL = "BIDIURNAL" # this means once every two days
     WEEKLY = "WEEKLY"
