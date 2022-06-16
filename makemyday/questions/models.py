@@ -14,6 +14,7 @@ class Question_Bank(models.Model):
     end_date = models.DateTimeField(null=True)
     number_of_attempts = models.IntegerField(default=3)
     isRandom = models.BooleanField(default=False)
+    time_Limit = models.IntegerField(default=60, help_text="duration of each question in minutes")
     DAILY = "DAILY"
     BIDIURNAL = "BIDIURNAL" # this means once every two days
     WEEKLY = "WEEKLY"
@@ -39,7 +40,7 @@ class Question_Bank(models.Model):
 class Activated_Question_Bank(models.Model):
     student = models.ForeignKey(Student, on_delete=models.CASCADE, default=None)
     question_bank = models.ForeignKey(Question_Bank, on_delete=models.CASCADE, default=None)
-    score = models.DecimalField(max_digits=3, decimal_places=2, null=True)
+    score = models.DecimalField(max_digits=6, decimal_places=2, null=True)
     time_to_send = models.TimeField(null=True)
 
     def __str__(self):
@@ -54,7 +55,7 @@ class Question(models.Model):
 
     def __str__(self):
         # return str(self.ques)
-        return f"{str(self.ques)} topic: {self.question_bank.topic}"
+        return f"{str(self.ques)}"
 
     def get_answers(self):
        return self.answer_set.all()

@@ -10,14 +10,14 @@ https://linuxhint.com/mysql-commands-tutorial/
 Django Tutorial:  
 https://youtube.com/playlist?list=PLzMcBGfZo4-kQkZp-j9PNyKq7Yw5VYjq9
 
-MySQL installation (ignore the thing about bash if using zsh):  
-https://www.youtube.com/watch?v=n1zT1OZcgnw
+MySQL installation:  
+https://youtu.be/IiUYyZo2gTk
 
 MySQL path for zsh:  
 https://stackoverflow.com/questions/35858052/how-to-fix-command-not-found-mysql-in-zsh
 
 ## Installation:
-https://www.youtube.com/watch?v=n1zT1OZcgnw  
+https://youtu.be/IiUYyZo2gTk
 Pip install mysqlclient
 
 Creating a python virtual environment:  
@@ -29,3 +29,4 @@ Inside venv:
 brew install mysql  
 pip install mysqlclient  
 python -m pip install Django
+pip install django-crispy-forms

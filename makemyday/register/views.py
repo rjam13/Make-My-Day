@@ -22,10 +22,13 @@ from register.form import RegisterForm, UserProfileForm
 
 
 def register(request):
+	instance_form = RegisterForm()
+	profile_form  = UserProfileForm()
 	if request.method == 'POST':
 		instance_form = RegisterForm(request.POST)
 		profile_form = UserProfileForm(request.POST)
 		if instance_form.is_valid() and profile_form.is_valid():
+			print("hi")
 			user = instance_form.save()
 
 			profile = profile_form.save(commit= False)
@@ -39,13 +42,71 @@ def register(request):
 			print(password)
 			user = authenticate(username = username, password = password)
 			login(request, user)
+			messages.info(request, f"You are now logged in as {username}.")
 
-		return redirect("/")	
-	else:
-		instance_form = RegisterForm()
-		profile_form  = UserProfileForm()
+			return redirect("/")	
+		else:
+			messages.error(request,"Invalid username/password.")
+			instance_form = RegisterForm()
+			profile_form  = UserProfileForm()
 	context = {'form': instance_form, 'profile_form': profile_form}	
 	return render(request, "register/register.html", context)
+
+
+
+
+
+	# def register(request):
+	# if request.method == 'POST':
+	# 	instance_form = RegisterForm(request.POST)
+	# 	profile_form = UserProfileForm(request.POST)
+	# 	if instance_form.is_valid() and profile_form.is_valid():
+	# 		user = instance_form.save()
+
+	# 		profile = profile_form.save(commit= False)
+	# 		profile.user = user
+
+	# 		profile.save()
+
+	# 		username = instance_form.cleaned_data.get('username')
+	# 		print(username)
+	# 		password = instance_form.cleaned_data.get('password1')
+	# 		print(password)
+	# 		user = authenticate(username = username, password = password)
+	# 		login(request, user)
+
+	# 	return redirect("/")	
+	# else:
+	# 	instance_form = RegisterForm()
+	# 	profile_form  = UserProfileForm()
+	# context = {'form': instance_form, 'profile_form': profile_form}	
+	# return render(request, "register/register.html", context)
+
+# def register(request):
+# 	if request.method == 'POST':
+# 		instance_form = RegisterForm(request.POST)
+# 		profile_form = UserProfileForm(request.POST)
+# 		if instance_form.is_valid() and profile_form.is_valid():
+# 			user = instance_form.save()
+
+# 			profile = profile_form.save(commit= False)
+# 			profile.user = user
+
+# 			profile.save()
+
+# 			username = instance_form.cleaned_data.get('username')
+# 			print(username)
+# 			password = instance_form.cleaned_data.get('password1')
+# 			print(password)
+# 			user = authenticate(username = username, password = password)
+# 			login(request, user)
+
+# 		return redirect("/")	
+# 	else:
+# 		instance_form = RegisterForm()
+# 		profile_form  = UserProfileForm()
+# 	context = {'form': instance_form, 'profile_form': profile_form}	
+# 	return render(request, "register/register.html", context)
 
 def login_request(request):
 	if request.method == "POST":

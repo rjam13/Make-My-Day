@@ -11,8 +11,8 @@ from django.dispatch import receiver
 class UserProfile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     phone = models.CharField(max_length=255, default="", unique=True)
-    student_id = models.CharField(max_length=255, default="")
-    instructor_id = models.CharField(max_length=255, default="")
+    student_id = models.CharField(max_length=255, blank=True)
+    instructor_id = models.CharField(max_length=255, blank=True)
 
     def save(self, *args, **kwargs):
         if self._state.adding:
