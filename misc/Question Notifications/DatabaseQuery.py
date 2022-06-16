@@ -1,5 +1,7 @@
 import mysql.connector
 
+FNAME_INDEX = 1
+
 mydb = mysql.connector.connect(
   host="localhost",
   user="djangouser",
