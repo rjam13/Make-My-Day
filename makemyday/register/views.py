@@ -6,26 +6,14 @@ from django.contrib import messages
 from register.form import RegisterForm, UserProfileForm
 
 
-
-# def register(response):
-#     # form = UserCreationForm()
-#     # return render(response, "register/register.html", {"form": form})
-# 	if response.method == 'POST':
-# 		form = RegisterForm(response.POST)
-# 		if form.is_valid():
-# 			form.save(commit= False)
-
-# 		return redirect("/home")	
-# 	else:
-# 		form = RegisterForm()
-# 	return render(response, "register/register.html", {"form": form})
-
-
 def register(request):
+	instance_form = RegisterForm()
+	profile_form  = UserProfileForm()
 	if request.method == 'POST':
 		instance_form = RegisterForm(request.POST)
 		profile_form = UserProfileForm(request.POST)
 		if instance_form.is_valid() and profile_form.is_valid():
+			print("hi")
 			user = instance_form.save()
 
 			profile = profile_form.save(commit= False)
@@ -39,13 +27,17 @@ def register(request):
 			print(password)
 			user = authenticate(username = username, password = password)
 			login(request, user)
+			messages.info(request, f"You are now logged in as {username}.")
 
-		return redirect("/")	
-	else:
-		instance_form = RegisterForm()
-		profile_form  = UserProfileForm()
+			return redirect("/")	
+		else:
+			messages.error(request,"Invalid username/password.")
+			instance_form = RegisterForm()
+			profile_form  = UserProfileForm()
 	context = {'form': instance_form, 'profile_form': profile_form}	
 	return render(request, "register/register.html", context)
+
+
 
 def login_request(request):
 	if request.method == "POST":
@@ -66,6 +58,7 @@ def login_request(request):
 	form = AuthenticationForm()
 	return render(request=request, template_name="register/login.html", context={"login_form":form})
 
+# Possibly create a logout button in the future
 def logout_request(request):
 	logout(request)
 	messages.info(request, "You have successfully logged out.") 

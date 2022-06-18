@@ -1,0 +1,65 @@
+{% extends 'main/base.html' %}
+
+{% load humanize %}
+{% block content %}
+
+
+    {% if each_one %}
+
+    <div class="container">
+        <div class="row mb-5 fields mt-5">
+    <div class="col-md-6">
+
+
+    <section id="bc">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item">
+                    <a href="{% url 'home' %}">Admin Home</a>
+                </li>
+                <li class="breadcrumb-item">
+                    <a href="{% url 'course_list' %}">Courses</a>
+                </li>
+                <li class="breadcrumb-item active" aria-current="page">
+                    {{each_one.course_name}}
+                </li>
+            </ol>
+
+
+        </nav>
+    </section>
+          <ul class="list-group list-group-flush mt-5">
+        <h3 class="text-info">Course Info</h3>
+                <li class="list-group-item text-secondary">
+                   Course Instructors:
+                  <span class="float-right">{{each_one.instructors}}</span>
+                </li>
+                <li class="list-group-item text-secondary">
+                   Course Student:
+                  <span class="float-right">{{each_one.students}}</span>
+                </li>
+                <li class="list-group-item text-secondary">
+                   Course Name:
+                  <span class="float-right">{{each_one.course_name}}</span>
+                </li>
+                <li class="list-group-item text-secondary">
+                   Description:
+                  <span class="float-right">{{each_one.description}}
+                  </span>
+                </li>
+              </ul>
+
+        <div class="pt-4">
+        <a href="{% url 'course_edit' each_one.course_id %}" class="btn btn-secondary float-left px-4">Update</a>
+        <a href="{% url 'course_delete' each_one.course_id %}" class="btn btn-danger float-right px-4">Delete</a>
+            </div>
+    </div>
+</div>
+    </div>
+
+
+    {% endif %}
+
+
+
+{% endblock %}
