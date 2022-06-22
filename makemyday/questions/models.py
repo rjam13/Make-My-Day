@@ -1,6 +1,7 @@
 from django.db import models
 from main.models import Course, Student
 import random
+from datetime import datetime
 
 # Create your models here.
 
@@ -12,9 +13,8 @@ class Question_Bank(models.Model):
     topic = models.CharField(max_length=255, default="Topic")
     start_date = models.DateTimeField(null=True)
     end_date = models.DateTimeField(null=True)
-    number_of_attempts = models.IntegerField(default=3)
+    number_of_attempts = models.IntegerField(default=3) # might move to question model
     isRandom = models.BooleanField(default=False)
-    time_Limit = models.IntegerField(default=60, help_text="duration of each question in minutes")
     DAILY = "DAILY"
     BIDIURNAL = "BIDIURNAL" # this means once every two days
     WEEKLY = "WEEKLY"
@@ -52,6 +52,10 @@ class Question(models.Model):
     question_id = models.BigAutoField(primary_key=True, db_column="question_id")
     ques = models.TextField(default="")
     order = models.IntegerField(default=0)
+    time_Limit = models.IntegerField(default=60, help_text="duration of the question in minutes")
+    openDT = models.DateTimeField(default=datetime.now)
+    closeDT = models.DateTimeField(default=datetime.now)
+    weight = models.IntegerField(default=1)
 
     def __str__(self):
         # return str(self.ques)
@@ -73,5 +77,5 @@ class Answer(models.Model):
 
 class Response(models.Model):
     ques = models.ForeignKey(Question, on_delete=models.CASCADE, default=None)
-    ans = models.ForeignKey(Answer, on_delete=models.CASCADE, default=None)
+    ans = models.ForeignKey(Answer, on_delete=models.CASCADE, blank=True, null=True, default=None)
     std = models.ForeignKey(Student, on_delete=models.CASCADE, default=None)
