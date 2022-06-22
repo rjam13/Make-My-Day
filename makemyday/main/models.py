@@ -5,6 +5,7 @@ from django.db import models
 from django.contrib.auth.models import User
 from django.db.models.signals import pre_save
 from django.dispatch import receiver
+from django.urls import reverse
 
 # Create your models here.
 
@@ -34,6 +35,8 @@ class UserProfile(models.Model):
     def __str__(self):
         return str(self.user.username)
 
+#Possibly create some foreign keys for student and instructor
+
 class Instructor(models.Model):
     user_profile = models.OneToOneField(UserProfile, on_delete=models.CASCADE)
     instructor_id = models.CharField(max_length=255, primary_key=True)
@@ -52,6 +55,11 @@ class Course(models.Model):
 
     def __str__(self):
         return str(self.course_name)
+
+    def get_absolute_url(self):
+        return reverse('course_update', kwargs={'course_id': self.course_id})    
+
+        
 
 # class MyAccountManager(BaseUserManager): 
 #     def create_user(self, username, password= None):
