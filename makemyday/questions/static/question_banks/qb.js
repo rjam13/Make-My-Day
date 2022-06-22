@@ -1,158 +1,89 @@
-console.log("hello world");
-
 const url = window.location.href;
-const qbBox = document.getElementById("qb-box");
-const scoreBox = document.getElementById("score-box");
-const resultBox = document.getElementById("result-box");
-const timerBox = document.getElementById("timer-box");
-
-const activateTimer = (time) => {
-  if (time.toString().length < 2) {
-    timerBox.innerHTML = `<b>0${time}:00</b>`;
-  } else {
-    timerBox.innerHTML = `<b>${time}:00</b>`;
-  }
-
-  let minutes = time - 1;
-  let seconds = 60;
-  let displaySeconds;
-  let displayMinutes;
-
-  const timer = setInterval(() => {
-    seconds--;
-    if (seconds < 0) {
-      seconds = 59;
-      minutes--;
-    }
-    if (minutes.toString().length < 2) {
-      displayMinutes = "0" + minutes;
-    } else {
-      displayMinutes = minutes;
-    }
-
-    if (seconds.toString().length < 2) {
-      displaySeconds = "0" + seconds;
-    } else {
-      displaySeconds = seconds;
-    }
-
-    if (minutes == 0 && seconds == 0) {
-      timerBox.innerHTML = "<b>00:00</b>";
-      setTimeout(() => {
-        clearInterval(timer);
-        alert("time over");
-        sendData();
-      }, 500);
-    }
-
-    timerBox.innerHTML = `<b>${displayMinutes}:${displaySeconds}</b>`;
-  }, 1000);
-};
 
 // setting up the quiz from the corresponding question bank indicated in the URl
 $.ajax({
   type: "GET",
   url: `${url}data`,
   success: function (response) {
-    // data is the array of questions with each value as {question: [answers in an array]}
-    const data = response.data;
+    // questions is the array of questions with each value as {question: [info]}
+    const questions = response.questions;
+    // const responses = response.responses
     const time_Limit = response.time_Limit;
-    data.forEach((element) => {
-      for (const [question, answers] of Object.entries(element)) {
-        // {question: [answers in an array]} => [question, answers]
-        qbBox.innerHTML += `
+    let buttonIDs = []
+
+    questions.forEach((element) => {
+      for (const [question, info] of Object.entries(element)) {
+        // {question: [info in an array]} => [question, info]
+
+        color = ""
+        if (info['answerIsCorrect'] == "True")
+          color = "bg-success";
+        else if (info['answerIsCorrect'] == "False")
+          color = "bg-danger";
+
+        const closedBox = document.getElementById("closed-box");
+        const openBox = document.getElementById("open-box");
+        const upcomingBox = document.getElementById("upcoming-box");
+        const questionStatus = checkTimeInbetween(info['openDT'], info['closeDT']);
+
+        html = `
             <hr>
-            <div class="mb-2">
-                <b>${question}</b>
-            </div>
+            <div class="mb-2, container, p-3, text-light, h6, ${color}" id="question${info['question_id']}">
+              <button class="btn btn-link" id="button${info['question_id']}">${question}</button>
         `;
-        answers.forEach((answer) => {
-          qbBox.innerHTML += `
-                <div>
-                    <input type="radio" class="ans" id="${question}-${answer}" name="${question}" value="${answer}">
-                    <label for="${question}">${answer}</label>
-                </div>
-            `;
-        });
+        if (questionStatus == "open-box") {
+          html += `
+              <p>Open | Due: ${info['closeDT'].slice(0,16)} | Time: ${info['time_Limit']} minutes | ${info['weight']} pts</p>
+          `;
+        }
+        else if (questionStatus == "upcoming-box") {
+          html += `
+              <p>Not available until ${info['openDT'].slice(0,16)} | Due: ${info['closeDT'].slice(0,16)} | Time: ${info['time_Limit']} minutes | ${info['weight']} pts</p>
+          `;
+        }
+        else if (questionStatus == "closed-box") {
+          html += `
+              <p>Closed | Due: ${info['closeDT'].slice(0,16)} | ${info['weight']} pts</p>
+          `;
+        }
+        html += `</div>`;
+
+        if (questionStatus == "open-box") {
+          openBox.innerHTML += html;
+        }
+        else if (questionStatus == "upcoming-box") {
+          upcomingBox.innerHTML += html;
+        }
+        else if (questionStatus == "closed-box") {
+          closedBox.innerHTML += html;
+        }
+
+        buttonIDs.push(info['question_id']);
       }
     });
-    activateTimer(time_Limit);
+
+    buttonIDs.forEach(function(buttonID) {
+      $("#button"+buttonID).click(function() {
+        window.location.href = url + buttonID;
+      });
+    });
   },
   error: function (error) {
     console.log(error);
   },
 });
 
-const qbForm = document.getElementById("qb-form");
-const csrf = document.getElementsByName("csrfmiddlewaretoken");
+function checkTimeInbetween(openDT, closeDT) {
+  const beg = Date.parse(openDT);
+  const now = Date.parse(new Date());
+  const end = Date.parse(closeDT);
 
-// called when the submit button is pressed
-const sendData = () => {
-  const elements = [...document.getElementsByClassName("ans")]; // contains all the radio buttons
-  const data = {};
-  data["csrfmiddlewaretoken"] = csrf[0].value;
-  // go through all the possible answers
-  elements.forEach((el) => {
-    if (el.checked) {
-      // name = question
-      // value = answer
-      data[el.name] = el.value;
-    } else if (!data[el.name]) {
-      // if question has no entry in data, it was not answered.
-      data[el.name] = null;
-    }
-  });
+  if (beg < now && now < end) {
+    return "open-box";
+  } else if (now < beg) {
+    return "upcoming-box";
+  } else {
+    return "closed-box";
+  }
 
-  // calls save_qb_view function in views.py
-  $.ajax({
-    type: "POST",
-    url: `${url}save/`,
-    data: data, // data == request.POST in save_qb_view in views.py
-    success: function (response) { // response == JsonResponse({'score': score_, 'results': results}) from views.py
-      // displays all the results
-      const results = response.results;
-      qbForm.classList.add("invisible");
-
-      scoreBox.innerHTML = `Your result is ${response.score.toFixed(2)}%`;
-
-      results.forEach((res) => {
-        // {str(q): {'correct_answer': correct_answer, 'answered': a_selected}} => [question, resp]
-        // {str(q): 'not answered'} => [question, resp]
-        const resDiv = document.createElement("div");
-        for (const [question, resp] of Object.entries(res)) {
-
-          resDiv.innerHTML += question;
-          const cls = ["container", "p-3", "text-light", "h6"];
-          resDiv.classList.add(...cls);
-
-          if (resp == "not answered") {
-            resDiv.innerHTML += "- not answered";
-            resDiv.classList.add("bg-danger");
-          } else {
-            const answer = resp["answered"];
-            const correct = resp["correct_answer"];
-
-            if (answer == correct) {
-              resDiv.classList.add("bg-success");
-              resDiv.innerHTML += `answered: ${answer}`;
-            } else {
-              resDiv.classList.add("bg-danger");
-              resDiv.innerHTML += ` | correct answer: ${correct}`;
-              resDiv.innerHTML += ` | answered: ${answer}`;
-            }
-          }
-        }
-        resultBox.append(resDiv);
-      });
-    },
-    error: function (error) {
-      console.log(error);
-    },
-  });
-};
-
-qbForm.addEventListener("submit", (e) => {
-  e.preventDefault();
-
-  sendData();
-});
+}

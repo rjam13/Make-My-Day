@@ -9,23 +9,19 @@
 
 {% block content %}
 
-<div class="row">
-  <div class="col">
-    <h3>{{qb.topic}}</h3>
-  </div>
-  <div class="col text-right" id="timer-box"></div>
-</div>
+<h3>{{qb.topic}}</h3>
 
-<a href="{% url 'question_banks:main-qb-view' %}" class="btn btn-danger">go back</a>
+<a href="{% url 'questions:main-qb-view' %}" class="btn btn-danger">go back</a>
 
 <p>For submitting, make sure the user your logged into is a student (i.e. has student_id filled when registered).</p>
-<hr>
-<form id="qb-form" class="mt-3 mb-3">
-  {% csrf_token %}
-  <div id="qb-box"></div>>
-  <button type="submit" class="btn btn-primary mt-3">save</button>
-</form>
-<div id="score-box"></div>
-<div id="result-box"></div>
+<div id="closed-box">
+  <h4><span class="badge bg-danger">Closed</span></h4>
+</div>
+<div id="open-box">
+  <h4><span class="badge bg-warning">Open</span></h4>
+</div>
+<div id="upcoming-box">
+  <h4><span class="badge bg-primary">Not available</span></h4>
+</div>
 {% endblock %}
 
