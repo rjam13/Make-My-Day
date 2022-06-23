@@ -1,4 +1,5 @@
 from cgitb import text
+from email.policy import default
 from tabnanny import verbose
 from django.db import models
 # from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
@@ -37,17 +38,24 @@ class UserProfile(models.Model):
 
 #Possibly create some foreign keys for student and instructor
 
+
 class Instructor(models.Model):
     user_profile = models.OneToOneField(UserProfile, on_delete=models.CASCADE)
     instructor_id = models.CharField(max_length=255, primary_key=True)
+
+    def __str__(self):
+        return str(self.instructor_id)
 
 class Student(models.Model):
     user_profile = models.OneToOneField(UserProfile, on_delete=models.CASCADE)
     student_id = models.CharField(max_length=255, primary_key=True)
 
+    def __str__(self):
+        return str(self.student_id)
+
 class Course(models.Model):
-    instructors = models.ManyToManyField(Instructor, related_name="instructors+")
-    students = models.ManyToManyField(Student, related_name="students+")
+    instructors = models.ManyToManyField(Instructor, related_name="instructors")
+    students = models.ManyToManyField(Student, related_name="students")
 
     course_id = models.BigAutoField(primary_key=True, db_column="course_id")
     course_name = models.CharField(max_length=255)
@@ -55,6 +63,9 @@ class Course(models.Model):
 
     def __str__(self):
         return str(self.course_name)
+        # return str(self.__dict__)
+        # return str(type(self.instructors))
+        # return self.instructors.set()
 
     def get_absolute_url(self):
         return reverse('course_update', kwargs={'course_id': self.course_id})    
