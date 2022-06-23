@@ -32,11 +32,11 @@
         <h3 class="text-info">Course Info</h3>
                 <li class="list-group-item text-secondary">
                    Course Instructors:
-                  <span class="float-right">{{each_one.instructors}}</span>
+                  <span class="float-right">{{instructors}}</span>
                 </li>
                 <li class="list-group-item text-secondary">
                    Course Student:
-                  <span class="float-right">{{each_one.students}}</span>
+                  <span class="float-right">{{students}}</span>
                 </li>
                 <li class="list-group-item text-secondary">
                    Course Name:
@@ -50,9 +50,13 @@
               </ul>
 
         <div class="pt-4">
-        <a href="{% url 'course_edit' each_one.course_id %}" class="btn btn-secondary float-left px-4">Update</a>
-        <a href="{% url 'course_delete' each_one.course_id %}" class="btn btn-danger float-right px-4">Delete</a>
-            </div>
+            {% if request.user.userprofile.instructor_id != "" %}
+                <a href="{% url 'course_edit' each_one.course_id %}" class="btn btn-secondary float-left px-4">Update</a>
+                <a href="{% url 'course_delete' each_one.course_id %}" class="btn btn-danger float-right px-4">Delete</a>
+            {% else %}
+                <a href="{% url 'course_register' each_one.course_id %}" class="btn btn-secondary float-right px-4">Register for a course</a>    
+            {% endif %}    
+        </div>
     </div>
 </div>
     </div>
