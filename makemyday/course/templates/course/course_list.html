@@ -11,7 +11,13 @@
                     <nav aria-label="breadcrumb">
                         <ol class="breadcrumb">
                             <li class="breadcrumb-item">
-                                <a href="{% url 'home' %}">Instructor Home</a>
+                                {% if request.user.userprofile.student_id == "" and request.user.userprofile.instructor_id != "" %}
+                                    <a href="{% url 'home' %}">Instructor Home</a>
+                                {% elif request.user.userprofile.instructor_id == "" and request.user.userprofile.student_id != "" %}
+                                    <a href="{% url 'home' %}">Student Home</a>  
+                                {% else %}
+                                    <a href="{% url 'home' %}">TA Home</a>    
+                                {% endif %}    
                             </li>
                             <li class="breadcrumb-item active" aria-current="page">
                                 Courses
