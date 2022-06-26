@@ -15,13 +15,7 @@
         <nav aria-label="breadcrumb">
             <ol class="breadcrumb">
                 <li class="breadcrumb-item">
-                    {% if request.user.userprofile.student_id == "" and request.user.userprofile.instructor_id != "" %}
-                        <a href="{% url 'home' %}">Instructor Home</a>
-                    {% elif request.user.userprofile.instructor_id == "" and request.user.userprofile.student_id != "" %}
-                        <a href="{% url 'home' %}">Student Home</a>  
-                    {% else %}
-                        <a href="{% url 'home' %}">TA Home</a>    
-                    {% endif %}    
+                    <a href="{% url 'home' %}">Admin Home</a>
                 </li>
                 <li class="breadcrumb-item">
                     <a href="{% url 'course_list' %}">Courses</a>
@@ -56,24 +50,20 @@
               </ul>
 
         <div class="pt-4">
-            <!-- instructor -->
-            {% if request.user.userprofile.student_id == "" and request.user.userprofile.instructor_id != "" %}
+            {% if request.user.userprofile.instructor_id != "" %}
                 <a href="{% url 'course_edit' each_one.course_id %}" class="btn btn-secondary float-left px-4">Update</a>
                 <a href="{% url 'course_delete' each_one.course_id %}" class="btn btn-danger float-right px-4">Delete</a>
-            <!-- student -->
-            {% elif request.user.userprofile.instructor_id == "" and request.user.userprofile.student_id != "" %}
-                <a href="{% url 'course_register' each_one.course_id %}" class="btn btn-secondary float-right px-4">Register for a course</a>
-            <!-- instructor and student -->  
             {% else %}
-                <a href="{% url 'course_edit' each_one.course_id %}" class="btn btn-secondary float-left px-4">Update</a>
-                <a href="{% url 'course_delete' each_one.course_id %}" class="btn btn-danger float-right px-4">Delete</a>
-                <a href="{% url 'course_register' each_one.course_id %}" class="btn btn-secondary float-right px-4">Register for a course</a>        
+                <a href="{% url 'course_register' each_one.course_id %}" class="btn btn-secondary float-right px-4">Register for a course</a>    
             {% endif %}    
         </div>
     </div>
 </div>
     </div>
 
-    {% endif %}  
+
+    {% endif %}
+
+
 
 {% endblock %}
