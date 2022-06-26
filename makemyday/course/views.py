@@ -1,5 +1,5 @@
 from django.shortcuts import render
-from .form import InstructorForm, StudentForm, CourseForm
+from .form import InstructorForm, CourseForm
 from django.shortcuts import redirect
 from main.models import Course
 from django.contrib import messages
@@ -7,11 +7,12 @@ from django.views.generic.edit import DeleteView, UpdateView
 from django.urls import reverse_lazy
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
-from main.models import Course, Student
+from main.models import Course
 from django.http import HttpResponseNotFound
 from django.forms import *
+from django.shortcuts import redirect
 
-# Create your views here.
+
 @login_required
 def course_create(request):
     print(request.user.userprofile.instructor_id)
@@ -48,50 +49,15 @@ def each_courses(request, pk):
 @login_required
 def course_registration(request, pk):
     student = request.user.userprofile.student_id
-    data = {'students': student}
+    instructor = request.user.userprofile.instructor_id
     print(student)
     course = Course.objects.get(course_id= pk)
     print(course)
-    form = StudentForm(instance = course, initial = data)
-    # for i in range(course.students.count()):    
-    #     print(course.students.all()[i]) 
-    if request.method == 'POST':
-        form = StudentForm(request.POST, instance = course, initial = data)
-        if form.is_valid():
-            form.save()
-            messages.success(request, 'Successfully registered for a course')
-            return redirect('/course')
-    context = {'form':form}
-    return render(request, 'course/course_form.html', context) 
-
-
-# def course_registration(request, pk):
-#     # print('hi')
-#     course = Course.objects.get(course_id= pk)
-#     form  = CourseForm(instance = course)
-#     student_id = request.user.userprofile.student_id
-#     # print(student_id)
-#     if request.method == 'POST':
-#         form = CourseForm(request.POST, instance = course)
-#         if form.is_valid():
-#             print('f')
-#             form.save()
-#             student = form.cleaned_data.get('students')
-#             if student_id == student:
-#                 print('s')
-#                 students = Course.objects.get(pk=pk).students.all()
-#                 # students.append(student)
-#                 students.set_add(student)
-#                 messages.success(request, 'Successfully registered for a course')
-#                 return redirect('/course')
-#         else:
-#             messages.error(request, 'Error registering for a course')
-#             form = CourseForm()
-#     context = {'form':form}
-#     return render(request, 'course/course_form.html', context)
-
-
-
+    cc = course.students.all()
+    course.students.add(student)
+    print(cc)
+    messages.success(request, 'Successfully registered for a course')
+    return redirect(('course_list'))
 
 
 # delete a course
@@ -104,7 +70,7 @@ class CourseDelete(LoginRequiredMixin, DeleteView):
 # update a course
 class CourseEdit(LoginRequiredMixin, UpdateView):
     model = Course
-    form_class = StudentForm 
+    form_class = CourseForm 
     template_name = 'course/course_form.html'
     success_url = reverse_lazy('course_list')
 
