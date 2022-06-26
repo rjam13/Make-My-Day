@@ -13,7 +13,6 @@ def register(request):
 		instance_form = RegisterForm(request.POST)
 		profile_form = UserProfileForm(request.POST)
 		if instance_form.is_valid() and profile_form.is_valid():
-			print("hi")
 			user = instance_form.save()
 
 			profile = profile_form.save(commit= False)
