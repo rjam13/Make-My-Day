@@ -52,6 +52,7 @@ INSTALLED_APPS = [
     'register.apps.RegisterConfig',
     'questions.apps.QuestionsConfig',
     'course.apps.CourseConfig',
+    'stats.apps.StatsConfig',
     'crispy_forms',
 ]
 
