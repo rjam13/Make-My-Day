@@ -6,62 +6,39 @@
 {% block title %}Home{% endblock %}
 
 {% block loggedin %}
-    <section class="p-5">
-        <div class="row">
-            <div class="col-sm-3">
-                <div class="card shadow" style="width: 19rem;">
-                    <img src="../../static/cardImage.jpg" class="card-img-top" alt="..." style="width:100%">
-                    <div class="card-body">
-                        <h5 class="card-title">Course ID</h5>
-                        <h6 class="card-title">Course title</h6>
-                        <p class="card-text">Teacher or semester</p>
-                        <div class="d-grid gap-2">
-                            <a href="#" class="btn btn-primary">Go To Course</a>
+    <div class="row">
+        <section class="col-8 p-4">
+            <div class="row">
+                {% if courses %}
+                {% for each in courses %}
+                <div class="col-sm-3">
+                    <div class="card shadow" style="width: 13rem;">
+                        <img src="../../static/cardImage.jpg" class="card-img-top" alt="..." style="width:100%">
+                        <div class="card-body">
+                            <h5 class="card-title">{{ each.course_id }}</h5>
+                            <h6 class="card-title">{{ each.course_name }}</h6>
+                            <p class="card-text">{{ each.instructors }}</p>
+                            <div class="d-grid gap-2">
+                                <a href="{% url 'course:each_courses' each.course_id %}" class="btn btn-primary">Go To Course</a>
+                            </div>
                         </div>
                     </div>
                 </div>
+                {% endfor %}
+                {% endif %}
             </div>
-            <div class="col-sm-3">
-                <div class="card shadow" style="width: 19rem;">
-                    <img src="../../static/cardImage.jpg" class="card-img-top" alt="..." style="width:100%">
-                    <div class="card-body">
-                        <h5 class="card-title">Course ID</h5>
-                        <h6 class="card-title">Course title</h6>
-                        <p class="card-text">Teacher or semester</p>
-                        <div class="d-grid gap-2">
-                            <a href="#" class="btn btn-primary">Go To Course</a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-sm-3">
-                <div class="card shadow" style="width: 19rem;">
-                    <img src="../../static/cardImage.jpg" class="card-img-top" alt="..." style="width:100%">
-                    <div class="card-body">
-                        <h5 class="card-title">Course ID</h5>
-                        <h6 class="card-title">Course title</h6>
-                        <p class="card-text">Teacher or semester</p>
-                        <div class="d-grid gap-2">
-                            <a href="#" class="btn btn-primary">Go To Course</a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-sm-3">
-                <div class="card shadow" style="width: 19rem;">
-                    <img src="../../static/cardImage.jpg" class="card-img-top" alt="..." style="width:100%">
-                    <div class="card-body">
-                        <h5 class="card-title">Course ID</h5>
-                        <h6 class="card-title">Course title</h6>
-                        <p class="card-text">Teacher or semester</p>
-                        <div class="d-grid gap-2">
-                            <a href="#" class="btn btn-primary">Go To Course</a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
+        </section>
+        <section class="col p-3">
+            <h3 class="text-info">Activated Question Banks</h3>
+            <hr>
+            {% if courses %}
+            {% for qb in activated_qb %}
+            <p>{{ qb.question_bank.topic }}</p>
+            <hr>
+            {% endfor %}
+            {% endif %}
+        </section>
+    </div>
 {% endblock %}
 
 {% block notloggin %}

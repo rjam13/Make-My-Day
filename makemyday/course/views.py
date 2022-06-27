@@ -8,6 +8,7 @@ from django.urls import reverse_lazy
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from main.models import Course
+from questions.models import Question_Bank
 from django.http import HttpResponseNotFound
 from django.forms import *
 from django.shortcuts import redirect
@@ -31,20 +32,21 @@ def course_create(request):
     return render(request, "course/course_create.html", {'form': form})
 
 @login_required
-def course_list(request):
-    courses = Course.objects.all().order_by('course_name')
-    return render(request, 'course/course_list.html', {'course': courses})
-
-@login_required
 def each_courses(request, pk):
     each_one = Course.objects.get(pk=pk)
     instructors = []
     for ins in list(each_one.instructors.all()):
-        instructors.append(str(ins))
+        name = ins.user_profile.user.first_name + " " + ins.user_profile.user.last_name
+        instructors.append(name)
     students = []
     for stu in list(each_one.students.all()):
-        students.append(str(stu))
-    return render(request, 'course/course_info.html', {'each_one': each_one, 'instructors': instructors, 'students': students})
+        name = stu.user_profile.user.first_name + " " + stu.user_profile.user.last_name
+        students.append(name)
+    return render(request, 'course/course_info.html', 
+    {'each_one': each_one, 
+    'instructors': instructors, 
+    'students': students,
+    'qbs': Question_Bank.objects.filter(course=each_one)})
 
 @login_required
 def course_registration(request, pk):

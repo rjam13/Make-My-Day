@@ -7,16 +7,16 @@ from django.views.generic import ListView
 from django.http import JsonResponse
 
 # Create your views here.
-class QuestionBankListView(ListView):
-    model = Question_Bank # sets object_list in main_qb.html
-    template_name = 'question_banks/main_qb.html'
+# class QuestionBankListView(ListView):
+#     model = Question_Bank # sets object_list in main_qb.html
+#     template_name = 'question_banks/main_qb.html'
 
-def question_bank_view(request, id):
+def question_bank_view(request, pk, id):
     question_bank = Question_Bank.objects.get(question_bank_id=id)
     return render(request, 'question_banks/qb.html', {'qb': question_bank})
 
 # called injunction with question_bank_view
-def qb_data_view(request, id):
+def qb_data_view(request, pk, id):
     question_bank = Question_Bank.objects.get(question_bank_id=id)
     questions = []
     responses = []
@@ -48,12 +48,12 @@ def qb_data_view(request, id):
         'questions': questions,
     })
 
-def question_view(request, id, qid):
+def question_view(request, pk, id, qid):
     question = Question.objects.get(question_id=qid)
     return render(request, 'question/question.html', {'q': question})
 
 # called injunction with question_view
-def question_data_view(request, id, qid):
+def question_data_view(request, pk, id, qid):
     question = Question.objects.get(question_id=int(qid))
     answers = {}
     for a in question.get_answers():
@@ -64,7 +64,7 @@ def question_data_view(request, id, qid):
     })
 
 # called when submitting a question from website
-def save_question_view(request, id, qid):
+def save_question_view(request, pk, id, qid):
     # print(request.POST)
     if is_ajax(request):
         question = Question.objects.get(question_id=qid)

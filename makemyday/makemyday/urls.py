@@ -26,7 +26,6 @@ urlpatterns = [
     path("register/", registerViews.register, name="register"),
     path("login", registerViews.login_request, name="login"),
     path("logout", registerViews.logout_request, name= "logout"), 
-    path("question-banks/", include("questions.urls", namespace="question_banks")),
     path("", include("main.urls")),
     path("course/",include('course.urls')),
     path("teststats/", statsViews.statistics_view, name="statistics"), #test, will clean up later
