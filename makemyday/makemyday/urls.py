@@ -17,6 +17,7 @@ from atexit import register
 from django.contrib import admin
 from django.urls import path, include
 from register import views as registerViews
+from stats import views as statsViews
 # from course import views as courseViews
 
 
@@ -28,4 +29,5 @@ urlpatterns = [
     path("question-banks/", include("questions.urls", namespace="question_banks")),
     path("", include("main.urls")),
     path("course/",include('course.urls')),
+    path("teststats/", statsViews.statistics_view, name="statistics"), #test, will clean up later
 ]
