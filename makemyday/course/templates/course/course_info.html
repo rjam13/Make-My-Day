@@ -1,79 +1,139 @@
-{% extends 'main/base.html' %}
+{% extends 'main/base.html' %} 
+{% load static %}
 
-{% load humanize %}
-{% block content %}
+{% block scripts %}
+<script src="{% static 'course/course_info.js' %}" defer></script>
+{% endblock scripts %}
 
+{% block title %} 
+{{each_one.course_name}} 
+{% endblock %}
 
-    {% if each_one %}
+{% load humanize %} 
+{% block content %} 
 
-    <div class="container">
-        <div class="row mb-5 fields mt-5">
-    <div class="col-md-6">
-
-
-    <section id="bc">
-        <nav aria-label="breadcrumb">
-            <ol class="breadcrumb">
-                <li class="breadcrumb-item">
-                    {% if request.user.userprofile.student_id == "" and request.user.userprofile.instructor_id != "" %}
-                        <a href="{% url 'home' %}">Instructor Home</a>
-                    {% elif request.user.userprofile.instructor_id == "" and request.user.userprofile.student_id != "" %}
-                        <a href="{% url 'home' %}">Student Home</a>  
-                    {% else %}
-                        <a href="{% url 'home' %}">TA Home</a>    
-                    {% endif %}    
-                </li>
-                <li class="breadcrumb-item">
-                    <a href="{% url 'course_list' %}">Courses</a>
-                </li>
-                <li class="breadcrumb-item active" aria-current="page">
-                    {{each_one.course_name}}
-                </li>
-            </ol>
-
-
-        </nav>
-    </section>
-          <ul class="list-group list-group-flush mt-5">
-        <h3 class="text-info">Course Info</h3>
-                <li class="list-group-item text-secondary">
-                   Course Instructors:
-                  <span class="float-right">{{instructors}}</span>
-                </li>
-                <li class="list-group-item text-secondary">
-                   Course Student:
-                  <span class="float-right">{{students}}</span>
-                </li>
-                <li class="list-group-item text-secondary">
-                   Course Name:
-                  <span class="float-right">{{each_one.course_name}}</span>
-                </li>
-                <li class="list-group-item text-secondary">
-                   Description:
-                  <span class="float-right">{{each_one.description}}
-                  </span>
-                </li>
-              </ul>
-
-        <div class="pt-4">
-            <!-- instructor -->
-            {% if request.user.userprofile.student_id == "" and request.user.userprofile.instructor_id != "" %}
-                <a href="{% url 'course_edit' each_one.course_id %}" class="btn btn-secondary float-left px-4">Update</a>
-                <a href="{% url 'course_delete' each_one.course_id %}" class="btn btn-danger float-right px-4">Delete</a>
-            <!-- student -->
-            {% elif request.user.userprofile.instructor_id == "" and request.user.userprofile.student_id != "" %}
-                <a href="{% url 'course_register' each_one.course_id %}" class="btn btn-secondary float-right px-4">Register for a course</a>
-            <!-- instructor and student -->  
-            {% else %}
-                <a href="{% url 'course_edit' each_one.course_id %}" class="btn btn-secondary float-left px-4">Update</a>
-                <a href="{% url 'course_delete' each_one.course_id %}" class="btn btn-danger float-right px-4">Delete</a>
-                <a href="{% url 'course_register' each_one.course_id %}" class="btn btn-secondary float-right px-4">Register for a course</a>        
-            {% endif %}    
+<!-- Modal -->
+<div class="modal fade" id="questionBankStartModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Activate?</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form id="noti-form">
+                {% csrf_token %}
+                <div class="modal-body" id="modal-body-confirm"></div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-danger" data-dismiss="modal">No</button>
+                    <button type="submit" id="start-button" class="btn btn-success">Yes</button>
+                </div>
+            </form>
         </div>
     </div>
 </div>
-    </div>
 
-    {% endif %}  
+<div class="container">
+    <div class="row mb-5 fields mt-5">
+        <div class="col-md-6">
+            <section id="bc">
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item">
+                            {% if request.user.userprofile.student_id == "" and request.user.userprofile.instructor_id != "" %}
+                            <a href="{% url 'main:home' %}">Instructor Home</a>
+                            {% elif request.user.userprofile.instructor_id == "" and request.user.userprofile.student_id != "" %}
+                            <a href="{% url 'main:home' %}">Student Home</a>
+                            {% else %}
+                            <a href="{% url 'main:home' %}">TA Home</a>
+                            {% endif %}
+                        </li>
+                        <li class="breadcrumb-item active" aria-current="page">
+                            {{each_one.course_name}}
+                        </li>
+                    </ol>
+                </nav>
+            </section>
+                        <ul class="list-group list-group-flush mt-5">
+                            <h3 class="text-info">Course Info</h3>
+                            <li class="list-group-item text-secondary">
+                                Course Instructors:
+                                <span class="float-right">{{instructors}}</span>
+                            </li>
+                            <li class="list-group-item text-secondary">
+                                Course Student:
+                                <span class="float-right">{{students}}</span>
+                            </li>
+                            <li class="list-group-item text-secondary">
+                                Course Name:
+                                <span class="float-right"
+                                    >{{each_one.course_name}}</span
+                                >
+                            </li>
+                            <li class="list-group-item text-secondary">
+                                Description:
+                                <span class="float-right"
+                                    >{{each_one.description}}
+                                </span>
+                            </li>
+                        </ul>
+
+                        <div class="pt-4">
+                            <!-- instructor -->
+                            {% if request.user.userprofile.student_id == "" and request.user.userprofile.instructor_id != "" %}
+                            <a
+                                href="{% url 'course:course_edit' each_one.course_id %}"
+                                class="btn btn-secondary float-left px-4"
+                                >Update</a>
+                            <a
+                                href="{% url 'course:course_delete' each_one.course_id %}"
+                                class="btn btn-danger float-right px-4"
+                                >Delete</a>
+                            <!-- student -->
+                            {% elif request.user.userprofile.instructor_id == "" and request.user.userprofile.student_id != "" %}
+                            <a
+                                href="{% url 'course:course_register' each_one.course_id %}"
+                                class="btn btn-secondary float-right px-4"
+                                >Register for a course</a>
+                            <!-- instructor and student -->
+                            {% else %}
+                            <a
+                                href="{% url 'course:course_edit' each_one.course_id %}"
+                                class="btn btn-secondary float-left px-4"
+                                >Update</a>
+                            <a
+                                href="{% url 'course:course_delete' each_one.course_id %}"
+                                class="btn btn-danger float-right px-4"
+                                >Delete</a>
+                            <a
+                                href="{% url 'course:course_register' each_one.course_id %}"
+                                class="btn btn-secondary float-right px-4"
+                                >Register for a course</a>
+                            {% endif %}
+                        </div>
+        </div>
+		<div class="col-md-6">
+
+			<h4 class="text-info mb-0">Available Question Banks</h4>
+            <p class="text-muted mb-3">These question banks will appear in your homepage once activated.</p>
+                {% for obj in qbs %}
+                <button
+                    class="btn btn btn-link modal-button"
+                    data-pk="{{obj.question_bank_id}}"
+                    data-question-bank="{{obj.topic}}"
+                    data-num-attempts="{{obj.number_of_attempts}}"
+                    data-time-limit="{{obj.time_Limit}}"
+                    data-start-date="{{obj.start_date}}"
+                    data-end-date="{{obj.end_date}}"
+                    data-frequency="{{obj.frequency}}"
+                    data-toggle="modal" 
+                    data-target="#questionBankStartModal">{{obj.topic}}
+                </button><br>
+                {% endfor %}
+			<hr>
+		</div>
+    </div>
+</div>
 
 {% endblock %}

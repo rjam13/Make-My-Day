@@ -1,22 +1,23 @@
+import datetime
 from http.client import responses
 from re import A
 from django.shortcuts import render
 from main.models import Student, UserProfile
 from .models import Question_Bank, Question, Answer, Activated_Question_Bank, Response
 from django.views.generic import ListView
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponse
 
 # Create your views here.
-class QuestionBankListView(ListView):
-    model = Question_Bank # sets object_list in main_qb.html
-    template_name = 'question_banks/main_qb.html'
+# class QuestionBankListView(ListView):
+#     model = Question_Bank # sets object_list in main_qb.html
+#     template_name = 'question_banks/main_qb.html'
 
-def question_bank_view(request, id):
+def question_bank_view(request, pk, id):
     question_bank = Question_Bank.objects.get(question_bank_id=id)
     return render(request, 'question_banks/qb.html', {'qb': question_bank})
 
 # called injunction with question_bank_view
-def qb_data_view(request, id):
+def qb_data_view(request, pk, id):
     question_bank = Question_Bank.objects.get(question_bank_id=id)
     questions = []
     responses = []
@@ -48,12 +49,35 @@ def qb_data_view(request, id):
         'questions': questions,
     })
 
-def question_view(request, id, qid):
+def activate_qb(request, pk, id):
+    if is_ajax(request):
+        data = request.POST
+        data_ = dict(data.lists())
+        data_.pop('csrfmiddlewaretoken')
+        print(data_)
+
+        question_bank = Question_Bank.objects.get(question_bank_id=id)
+        student = retrieveStudent(request)
+        time = data_.pop('time')[0]
+        hour = int(time[:2])
+        minute = int(time[3:5])
+        time_ = datetime.time(hour, minute, 0)
+
+        # checks if the student has already activated it
+        if Activated_Question_Bank.objects.filter(student=student, question_bank=question_bank).first():
+            return JsonResponse({
+                'Error': 'Error'
+            })
+        else:
+            Activated_Question_Bank.objects.create(student=student, question_bank=question_bank, score=0, time_to_send=time_)
+            return HttpResponse(status=200)
+
+def question_view(request, pk, id, qid):
     question = Question.objects.get(question_id=qid)
     return render(request, 'question/question.html', {'q': question})
 
 # called injunction with question_view
-def question_data_view(request, id, qid):
+def question_data_view(request, pk, id, qid):
     question = Question.objects.get(question_id=int(qid))
     answers = {}
     for a in question.get_answers():
@@ -64,7 +88,7 @@ def question_data_view(request, id, qid):
     })
 
 # called when submitting a question from website
-def save_question_view(request, id, qid):
+def save_question_view(request, pk, id, qid):
     # print(request.POST)
     if is_ajax(request):
         question = Question.objects.get(question_id=qid)

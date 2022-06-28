@@ -16,17 +16,19 @@ https://youtu.be/IiUYyZo2gTk
 MySQL path for zsh:  
 https://stackoverflow.com/questions/35858052/how-to-fix-command-not-found-mysql-in-zsh
 
-## Installation:
-https://youtu.be/IiUYyZo2gTk
-Pip install mysqlclient
+## Installation:  
+https://youtu.be/IiUYyZo2gTk  
+Pip install mysqlclient  
 
 Creating a python virtual environment:  
-python3 -m venv /location/of/makemyday  
-To activate virtual environment from makemyday directory:  
-source bin/activate
-
+create a folder and place the repository inside  
+python3 -m venv /the/folder/where/repository/lies  
+To activate virtual environment from the folder:  
+source bin/activate  
+  
 Inside venv:  
 brew install mysql  
 pip install mysqlclient  
-python -m pip install Django
-pip install django-crispy-forms
+python -m pip install Django  
+pip install django-crispy-forms  
+pip install django-tables2  
