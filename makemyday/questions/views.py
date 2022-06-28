@@ -1,10 +1,11 @@
+import datetime
 from http.client import responses
 from re import A
 from django.shortcuts import render
 from main.models import Student, UserProfile
 from .models import Question_Bank, Question, Answer, Activated_Question_Bank, Response
 from django.views.generic import ListView
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponse
 
 # Create your views here.
 # class QuestionBankListView(ListView):
@@ -47,6 +48,29 @@ def qb_data_view(request, pk, id):
     return JsonResponse({
         'questions': questions,
     })
+
+def activate_qb(request, pk, id):
+    if is_ajax(request):
+        data = request.POST
+        data_ = dict(data.lists())
+        data_.pop('csrfmiddlewaretoken')
+        print(data_)
+
+        question_bank = Question_Bank.objects.get(question_bank_id=id)
+        student = retrieveStudent(request)
+        time = data_.pop('time')[0]
+        hour = int(time[:2])
+        minute = int(time[3:5])
+        time_ = datetime.time(hour, minute, 0)
+
+        # checks if the student has already activated it
+        if Activated_Question_Bank.objects.filter(student=student, question_bank=question_bank).first():
+            return JsonResponse({
+                'Error': 'Error'
+            })
+        else:
+            Activated_Question_Bank.objects.create(student=student, question_bank=question_bank, score=0, time_to_send=time_)
+            return HttpResponse(status=200)
 
 def question_view(request, pk, id, qid):
     question = Question.objects.get(question_id=qid)
