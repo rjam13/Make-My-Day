@@ -15,7 +15,6 @@ modalBtns.forEach((modalBtn) =>
         const number_of_attempts = modalBtn.getAttribute("data-num-attempts");
         const isRandom = modalBtn.getAttribute("data-isRandom");
         const frequency = modalBtn.getAttribute("data-frequency");
-        const time_Limit = modalBtn.getAttribute("data-time-limit");
 
         // $.ajax({
         //   type: "GET",
@@ -50,25 +49,23 @@ modalBtns.forEach((modalBtn) =>
                 <li>End date: <b>${end_date}</b></li>
                 <li>Number of attempts per question: <b>${number_of_attempts}</b></li>
                 <li>Frequency: <b>${frequency}</b></li>
-                <li>Time Limit: <b>${time_Limit} minutes</b></li>
             </ul>
             <p>Please enter a time to receive the questions <b>${frequency}</b>.</p>
             <div id="error"></div>
             <input type="time" id="noti" name="noti" required>
         </div>
-    `;
+        `;
 
         html = `
-    <div class="h5 mb-3">Are you sure you want to begin <b>${topic}</b>?</div>
-    <div class="text-muted">
-        <ul>
-            <li>Start date: <b>${start_date}</b></li>
-            <li>End date: <b>${end_date}</b></li>
-            <li>Number of attempts per question: <b>${number_of_attempts}</b></li>
-            <li>Frequency: <b>${frequency}</b></li>
-            <li>Time Limit: <b>${time_Limit} minutes</b></li>
-        </ul>
-    `;
+        <div class="h5 mb-3">Are you sure you want to begin <b>${topic}</b>?</div>
+        <div class="text-muted">
+            <ul>
+                <li>Start date: <b>${start_date}</b></li>
+                <li>End date: <b>${end_date}</b></li>
+                <li>Number of attempts per question: <b>${number_of_attempts}</b></li>
+                <li>Frequency: <b>${frequency}</b></li>
+            </ul>
+        `;
 
         // if (frequency == "WEEKLY") {
         //   html += `
@@ -94,11 +91,11 @@ modalBtns.forEach((modalBtn) =>
         // }
 
         html += `
-    <p>Please enter a time to receive the questions <b>${frequency}</b>.</p>
-    <div id="error"></div>
-    <input type="time" id="noti" name="noti" required></input>
-    </div>
-    `;
+        <p>Please enter a time to receive the questions <b>${frequency}</b>.</p>
+        <div id="error"></div>
+        <input type="time" id="noti" name="noti" required></input>
+        </div>
+        `;
 
         const form = document.getElementById("noti-form");
         const notification = document.getElementById("noti");

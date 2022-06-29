@@ -78,18 +78,28 @@ def question_view(request, pk, id, qid):
 
 # called injunction with question_view
 def question_data_view(request, pk, id, qid):
+    student = retrieveStudent(request)
     question = Question.objects.get(question_id=int(qid))
-    answers = {}
-    for a in question.get_answers():
-        answers[a.ans] = a.explanation
-    return JsonResponse({
-        'data': answers,
-        'time_Limit': str(question.time_Limit),
-    })
+    studentResponse = Response.objects.filter(std=student, ques=question).first()
+
+    if studentResponse:
+        correct_answer = Answer.objects.get(question=question, isCorrect=True).ans
+        if hasattr(studentResponse.ans, 'ans'):
+            result = {str(question): {'correct_answer': correct_answer, 'answered': studentResponse.ans.ans}}
+        else:
+            result = {str(question): {'correct_answer': correct_answer, 'answered': "Did not answer"}}
+        return JsonResponse({'result': result})
+    else:
+        answers = {}
+        for a in question.get_answers():
+            answers[a.ans] = a.explanation
+        return JsonResponse({
+            'data': answers,
+            'time_Limit': str(question.time_Limit),
+        })
 
 # called when submitting a question from website
 def save_question_view(request, pk, id, qid):
-    # print(request.POST)
     if is_ajax(request):
         question = Question.objects.get(question_id=qid)
         data = request.POST
@@ -99,44 +109,29 @@ def save_question_view(request, pk, id, qid):
 
         # retrieves the student that answered the qb
         student = retrieveStudent(request)
-        
-        # qb = Question_Bank.objects.get(question_bank_id=qid)
 
-        correct_answer = None
-        answeredCorrect = False
-        result = {}
+        correct_answer = ""
 
         # find the selected answer for the question
-        a_selected = request.POST.get(str(question)) 
+        a_selected = str(request.POST.get(str(question)))
+        if len(a_selected) == 0:
+            a_selected = "Did not answer"
         answer = None
 
-        # if question is answered
-        if a_selected != "":
-            # goes through all the answers of the question, finds the correct one and compares to selected answer
-            question_answers = Answer.objects.filter(question=question)
+        # goes through all the answers of the question, finds the correct one and compares to selected answer
+        question_answers = Answer.objects.filter(question=question)
 
-            for a in question_answers:
-                if a_selected == a.ans:
-                    if a.isCorrect:
-                        answeredCorrect = True
-                        correct_answer = a.ans
-                    answer = a
-                else:
-                    if a.isCorrect:
-                        correct_answer = a.ans
-            
-            result = {str(question): {'correct_answer': correct_answer, 'answered': a_selected}}
-        # questions is not answered
-        else:
-            result = {str(question): 'not answered'}
+        for a in question_answers:
+            if a.isCorrect:
+                correct_answer = a.ans
+            if a_selected == a.ans:
+                answer = a
+        
+        result = {str(question): {'correct_answer': correct_answer, 'answered': a_selected}}
 
-        # print(question)    
-        # print(answer)
-        # print(student)
         Response.objects.create(ques=question, ans=answer, std=student)
 
         return JsonResponse({'result': result})
-        # return JsonResponse({'score': score_, 'results': results})
 
 def is_ajax(request):
     return request.META.get('HTTP_X_REQUESTED_WITH') == 'XMLHttpRequest'
