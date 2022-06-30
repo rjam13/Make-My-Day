@@ -8,8 +8,8 @@ from django.db.models.signals import pre_save
 from django.dispatch import receiver
 from django.urls import reverse
 
-# Create your models here.
 
+# Create your models here.
 class UserProfile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     phone = models.CharField(max_length=255, default="", unique=True)
@@ -31,14 +31,12 @@ class UserProfile(models.Model):
                 student.save()
         else:
             super(UserProfile, self).save(*args, **kwargs)
-        
 
     def __str__(self):
         return str(self.user.username)
 
+
 #Possibly create some foreign keys for student and instructor
-
-
 class Instructor(models.Model):
     user_profile = models.OneToOneField(UserProfile, on_delete=models.CASCADE)
     instructor_id = models.CharField(max_length=255, primary_key=True)
@@ -46,12 +44,14 @@ class Instructor(models.Model):
     def __str__(self):
         return str(self.instructor_id)
 
+
 class Student(models.Model):
     user_profile = models.OneToOneField(UserProfile, on_delete=models.CASCADE)
     student_id = models.CharField(max_length=255, primary_key=True)
 
     def __str__(self):
         return str(self.student_id)
+
 
 class Course(models.Model):
     instructors = models.ManyToManyField(Instructor, related_name="instructors")
@@ -70,7 +70,6 @@ class Course(models.Model):
     def get_absolute_url(self):
         return reverse('course_update', kwargs={'course_id': self.course_id})    
 
-        
 
 # class MyAccountManager(BaseUserManager): 
 #     def create_user(self, username, password= None):

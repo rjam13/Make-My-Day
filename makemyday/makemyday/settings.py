@@ -52,7 +52,9 @@ INSTALLED_APPS = [
     'register.apps.RegisterConfig',
     'questions.apps.QuestionsConfig',
     'course.apps.CourseConfig',
+    'stats.apps.StatsConfig',
     'crispy_forms',
+    'django_tables2'
 ]
 
 CRISPY_TEMPLATE_PACK = 'bootstrap4'

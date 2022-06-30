@@ -1,98 +1,114 @@
-{{% extends 'main/base.html' %}
-{% load static %}
+{% extends 'main/base.html' %} 
+{% load static %} 
 
-{% block scripts %}
-{% endblock scripts %}
-{% block title %}Home{% endblock %}
+{% block scripts %} 
+{% endblock scripts %} 
+{% block title %}
+Home
+{% endblock %} 
 
 {% block loggedin %}
-    <section class="p-5">
+<div class="row">
+    <section class="col-8 p-4">
         <div class="row">
+            {% if courses %} 
+            {% for each in courses %}
             <div class="col-sm-3">
-                <div class="card shadow" style="width: 19rem;">
-                    <img src="../../static/cardImage.jpg" class="card-img-top" alt="..." style="width:100%">
+                <div class="card shadow" style="width: 13rem">
+                    <img
+                        src="../../static/cardImage.jpg"
+                        class="card-img-top"
+                        alt="..."
+                        style="width: 100%"
+                    />
                     <div class="card-body">
-                        <h5 class="card-title">Course ID</h5>
-                        <h6 class="card-title">Course title</h6>
-                        <p class="card-text">Teacher or semester</p>
+                        <h5 class="card-title">{{ each.course_id }}</h5>
+                        <h6 class="card-title">{{ each.course_name }}</h6>
+                        <p class="card-text">{{ each.instructors }}</p>
                         <div class="d-grid gap-2">
-                            <a href="#" class="btn btn-primary">Go To Course</a>
+                            <a
+                                href="{% url 'course:each_courses' each.course_id %}"
+                                class="btn btn-primary"
+                                >Go To Course</a
+                            >
                         </div>
                     </div>
                 </div>
             </div>
+            {% endfor %} 
+            {% endif %}
             <div class="col-sm-3">
-                <div class="card shadow" style="width: 19rem;">
-                    <img src="../../static/cardImage.jpg" class="card-img-top" alt="..." style="width:100%">
+                <div class="card shadow" style="width: 13rem">
                     <div class="card-body">
-                        <h5 class="card-title">Course ID</h5>
-                        <h6 class="card-title">Course title</h6>
-                        <p class="card-text">Teacher or semester</p>
+                        <h5 class="card-title">New Course</h5>
+                        <p class="card-text">
+                            If you have an access code that you received from
+                            your instructor, enter it here.
+                        </p>
                         <div class="d-grid gap-2">
-                            <a href="#" class="btn btn-primary">Go To Course</a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-sm-3">
-                <div class="card shadow" style="width: 19rem;">
-                    <img src="../../static/cardImage.jpg" class="card-img-top" alt="..." style="width:100%">
-                    <div class="card-body">
-                        <h5 class="card-title">Course ID</h5>
-                        <h6 class="card-title">Course title</h6>
-                        <p class="card-text">Teacher or semester</p>
-                        <div class="d-grid gap-2">
-                            <a href="#" class="btn btn-primary">Go To Course</a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-sm-3">
-                <div class="card shadow" style="width: 19rem;">
-                    <img src="../../static/cardImage.jpg" class="card-img-top" alt="..." style="width:100%">
-                    <div class="card-body">
-                        <h5 class="card-title">Course ID</h5>
-                        <h6 class="card-title">Course title</h6>
-                        <p class="card-text">Teacher or semester</p>
-                        <div class="d-grid gap-2">
-                            <a href="#" class="btn btn-primary">Go To Course</a>
+                            <a href="#" class="btn btn-primary">Register</a>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
     </section>
-{% endblock %}
-
+    <section class="col p-3">
+        <h3 class="text-info">To-Do List</h3>
+        <hr />
+        {% if courses %} 
+        {% for qb in activated_qb %}
+        <a
+            href="{% url 'course:questions:qb-view' pk=qb.question_bank.course.course_id id=qb.question_bank.question_bank_id %}"
+        >
+        <b>{{ qb.question_bank.course }}:</b> {{ qb.question_bank.topic }}
+        </a>
+        <p class="mb-0">{{ qb.question_bank.frequency }} | Set reminder: {{ qb.time_to_send }}</p>
+        <p><b>Score: {{ qb.score }}</b></p>
+        <hr />
+        {% endfor %} 
+        {% endif %}
+    </section>
+</div>
+{% endblock %} 
 {% block notloggin %}
-    <header class="py-5 bg-image-full" style="background-image: url('../../static/cardImage.jpg')">
-        <div class="text-center my-5">
-            <h1 class="text-white fs-3 fw-bolder">Test Landing Page</h1>
-            <p class="text-white-50 mb-0">Landing Page</p>
-        </div>
-    </header>
-    <section class="bg-light text-center">
-        <div class="container">
-            <div class="row">
-                <div class="col-lg-4">
-                    <div class="mx-auto mb-5 mb-lg-0 mb-lg-3">
-                        <h3>More Info 1</h3>
-                        <p class="lead mb-0">This is where there will be more info 1!</p>
-                    </div>
+<header
+    class="py-5 bg-image-full"
+    style="background-image: url('../../static/cardImage.jpg')"
+>
+    <div class="text-center my-5">
+        <h1 class="text-white fs-3 fw-bolder">Test Landing Page</h1>
+        <p class="text-white-50 mb-0">Landing Page</p>
+    </div>
+</header>
+<section class="bg-light text-center">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-4">
+                <div class="mx-auto mb-5 mb-lg-0 mb-lg-3">
+                    <h3>More Info 1</h3>
+                    <p class="lead mb-0">
+                        This is where there will be more info 1!
+                    </p>
                 </div>
-                <div class="col-lg-4">
-                    <div class="mx-auto mb-5 mb-lg-0 mb-lg-3">
-                        <h3>More Info 1</h3>
-                        <p class="lead mb-0">This is where there will be more info 1!</p>
-                    </div>
+            </div>
+            <div class="col-lg-4">
+                <div class="mx-auto mb-5 mb-lg-0 mb-lg-3">
+                    <h3>More Info 1</h3>
+                    <p class="lead mb-0">
+                        This is where there will be more info 1!
+                    </p>
                 </div>
-                <div class="col-lg-4">
-                    <div class="mx-auto mb-5 mb-lg-0 mb-lg-3">
-                        <h3>More Info 1</h3>
-                        <p class="lead mb-0">This is where there will be more info 1!</p>
-                    </div>
+            </div>
+            <div class="col-lg-4">
+                <div class="mx-auto mb-5 mb-lg-0 mb-lg-3">
+                    <h3>More Info 1</h3>
+                    <p class="lead mb-0">
+                        This is where there will be more info 1!
+                    </p>
                 </div>
             </div>
         </div>
-    </section>
+    </div>
+</section>
 {% endblock %}

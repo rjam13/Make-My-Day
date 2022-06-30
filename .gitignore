@@ -1,5 +1,1 @@
-.DS_Store
-*.pyc
-db.sqlite3
-env/bin/
-env/lib/
+__pycache__/

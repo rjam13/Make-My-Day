@@ -17,6 +17,7 @@ from atexit import register
 from django.contrib import admin
 from django.urls import path, include
 from register import views as registerViews
+from stats import views as statsViews
 # from course import views as courseViews
 
 
@@ -25,7 +26,7 @@ urlpatterns = [
     path("register/", registerViews.register, name="register"),
     path("login", registerViews.login_request, name="login"),
     path("logout", registerViews.logout_request, name= "logout"), 
-    path("question-banks/", include("questions.urls", namespace="question_banks")),
     path("", include("main.urls")),
     path("course/",include('course.urls')),
+    path("statistics/", statsViews.statistics_view, name="statistics"),
 ]
