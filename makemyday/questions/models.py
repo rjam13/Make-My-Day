@@ -2,6 +2,7 @@ from django.db import models
 from main.models import Course, Student
 import random
 from datetime import datetime
+from django.utils import timezone
 
 # Create your models here.
 
