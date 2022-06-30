@@ -3,12 +3,27 @@
 {% block title %} Create a User Account {% endblock %}
 
 {% block content %}
-  <form method="POST" action="{% url 'register' %}" class="form-grp">
-    {% csrf_token %}
-    {{ form.as_p }}
-    {{ profile_form.as_p }}
-    <button type="submit" class= "btn btn-success">Register</button>
-    <!-- <input type="submit" value="submit"> -->
-  </form>
+    <section class="h-100" style="background-color: #eee;">
+        <div class="container h-100">
+            <div class="row d-flex justify-content-center align-items-center h-100">
+                <div class="col-xl-8">
+                    <div class="card rounded-3 text-black">
+                        <div class="row g-0  justify-content-center">
+                            <div class="col-lg-8">
+                                <div class="card-body p-md-5 mx-md-4">
+                                        <form method="POST" action="{% url 'register' %}" class="form-grp">
+                                            {% csrf_token %}
+                                            {{ form.as_p }}
+                                            {{ profile_form.as_p }}
+                                            <button type="submit" class= "btn btn-primary btn-block fa-lg mb-3">Register</button>
+                                            <!-- <input type="submit" value="submit"> -->
+                                        </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
 {% endblock %}
-

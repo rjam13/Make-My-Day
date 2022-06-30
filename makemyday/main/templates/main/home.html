@@ -1,35 +1,98 @@
-{% extends 'main/base.html' %}
+{{% extends 'main/base.html' %}
 {% load static %}
 
 {% block scripts %}
-  <script src="{% static 'base/home.js' %}" defer></script>
 {% endblock scripts %}
+{% block title %}Home{% endblock %}
 
-{% block title %}
-Homepage
+{% block loggedin %}
+    <section class="p-5">
+        <div class="row">
+            <div class="col-sm-3">
+                <div class="card shadow" style="width: 19rem;">
+                    <img src="../../static/cardImage.jpg" class="card-img-top" alt="..." style="width:100%">
+                    <div class="card-body">
+                        <h5 class="card-title">Course ID</h5>
+                        <h6 class="card-title">Course title</h6>
+                        <p class="card-text">Teacher or semester</p>
+                        <div class="d-grid gap-2">
+                            <a href="#" class="btn btn-primary">Go To Course</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-3">
+                <div class="card shadow" style="width: 19rem;">
+                    <img src="../../static/cardImage.jpg" class="card-img-top" alt="..." style="width:100%">
+                    <div class="card-body">
+                        <h5 class="card-title">Course ID</h5>
+                        <h6 class="card-title">Course title</h6>
+                        <p class="card-text">Teacher or semester</p>
+                        <div class="d-grid gap-2">
+                            <a href="#" class="btn btn-primary">Go To Course</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-3">
+                <div class="card shadow" style="width: 19rem;">
+                    <img src="../../static/cardImage.jpg" class="card-img-top" alt="..." style="width:100%">
+                    <div class="card-body">
+                        <h5 class="card-title">Course ID</h5>
+                        <h6 class="card-title">Course title</h6>
+                        <p class="card-text">Teacher or semester</p>
+                        <div class="d-grid gap-2">
+                            <a href="#" class="btn btn-primary">Go To Course</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-3">
+                <div class="card shadow" style="width: 19rem;">
+                    <img src="../../static/cardImage.jpg" class="card-img-top" alt="..." style="width:100%">
+                    <div class="card-body">
+                        <h5 class="card-title">Course ID</h5>
+                        <h6 class="card-title">Course title</h6>
+                        <p class="card-text">Teacher or semester</p>
+                        <div class="d-grid gap-2">
+                            <a href="#" class="btn btn-primary">Go To Course</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
 {% endblock %}
 
-{% block top-bar %}
-{% if request.user.is_authenticated %}
-<a class="nav-link" href="#">Welcome, {{user.username}}</a>
-<a href="/logout"> 
-  <button> Logout</button>
-</a>
-<span class="spacer-s"></span>
-<span class="spacer-s"></span>
-{% else %}
-<button class="login" id="student-login-button">Student Login</button>
-<span class="spacer-s"></span>
-<span class="spacer-s"></span>
-<button class="login" id="instructor-login-button">Instructor Login</button>
-<span class="spacer-s"></span>
-<span class="spacer-s"></span>
-<button class="signup" id="register-button">Sign Up!</button>
-<span class="spacer-s"></span>
-{% endif %}
-{% endblock %}
-
-{% block content %}
-<p class="tagline" id="tagline-1">Learning...</p>
-<p class="tagline" id="tagline-2">One question<br>at a time.</p>
+{% block notloggin %}
+    <header class="py-5 bg-image-full" style="background-image: url('../../static/cardImage.jpg')">
+        <div class="text-center my-5">
+            <h1 class="text-white fs-3 fw-bolder">Test Landing Page</h1>
+            <p class="text-white-50 mb-0">Landing Page</p>
+        </div>
+    </header>
+    <section class="bg-light text-center">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-4">
+                    <div class="mx-auto mb-5 mb-lg-0 mb-lg-3">
+                        <h3>More Info 1</h3>
+                        <p class="lead mb-0">This is where there will be more info 1!</p>
+                    </div>
+                </div>
+                <div class="col-lg-4">
+                    <div class="mx-auto mb-5 mb-lg-0 mb-lg-3">
+                        <h3>More Info 1</h3>
+                        <p class="lead mb-0">This is where there will be more info 1!</p>
+                    </div>
+                </div>
+                <div class="col-lg-4">
+                    <div class="mx-auto mb-5 mb-lg-0 mb-lg-3">
+                        <h3>More Info 1</h3>
+                        <p class="lead mb-0">This is where there will be more info 1!</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
 {% endblock %}

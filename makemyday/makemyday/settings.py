@@ -92,7 +92,6 @@ WSGI_APPLICATION = 'makemyday.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/4.0/ref/settings/#databases
 
-<<<<<<< HEAD
 #DATABASES = {
     #'default': {
         #'ENGINE': 'django.db.backends.mysql',
@@ -103,29 +102,13 @@ WSGI_APPLICATION = 'makemyday.wsgi.application'
         #'PORT': '3306', # default port for mysql
     #}
 #}
-=======
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.mysql',
-#         'NAME': 'make_my_day',
-#         'USER': 'djangouser',
-#         'PASSWORD': 'capstone2022',
-#         'HOST': 'localhost',
-#         'PORT': '3306', # default port for mysql
-#     }
-# }
->>>>>>> a162420c333af163c02c8e4878fac10a5a376efa
 
 
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': BASE_DIR / 'db.sqlite3',
-<<<<<<< HEAD
-    } 
-=======
     }
->>>>>>> a162420c333af163c02c8e4878fac10a5a376efa
 }
 
 
