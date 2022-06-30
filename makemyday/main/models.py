@@ -1,5 +1,6 @@
 from cgitb import text
 from email.policy import default
+from fileinput import close
 from tabnanny import verbose
 from django.db import models
 # from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
@@ -7,6 +8,7 @@ from django.contrib.auth.models import User
 from django.db.models.signals import pre_save
 from django.dispatch import receiver
 from django.urls import reverse
+from django.utils import timezone
 
 
 # Create your models here.
@@ -52,6 +54,21 @@ class Student(models.Model):
     def __str__(self):
         return str(self.student_id)
 
+    def retrieveActivatedQuestionBanks(self):
+        activated_qbs = self.activated_question_bank_set.all()
+        closed_aqbs = []
+        open_aqbs = []
+        upcoming_aqbs = []
+        for qb in activated_qbs:
+            if qb.question_bank.end_date <= timezone.now():
+                closed_aqbs.append(qb)
+            elif qb.question_bank.start_date <= timezone.now() and qb.question_bank.end_date >= timezone.now():
+                open_aqbs.append(qb)
+            elif qb.question_bank.start_date >= timezone.now():
+                upcoming_aqbs.append(qb)
+
+        return [closed_aqbs, open_aqbs, upcoming_aqbs]
+
 
 class Course(models.Model):
     instructors = models.ManyToManyField(Instructor, related_name="instructors")
@@ -69,6 +86,18 @@ class Course(models.Model):
 
     def get_absolute_url(self):
         return reverse('course_update', kwargs={'course_id': self.course_id})    
+
+    # This retrieves question banks that are not closed (now is before question_bank.end_date)
+    def retrieveQuestionBanks(self):
+        closed_qbs = self.question_bank_set.filter(
+            end_date__lte=timezone.now())
+        open_qbs = self.question_bank_set.filter(
+            start_date__lte=timezone.now(), 
+            end_date__gte=timezone.now())
+        upcoming_qbs = self.question_bank_set.filter(
+            start_date__gte=timezone.now())
+
+        return [closed_qbs, open_qbs, upcoming_qbs]
 
 
 # class MyAccountManager(BaseUserManager): 

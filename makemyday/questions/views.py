@@ -6,6 +6,7 @@ from main.models import Student, UserProfile
 from .models import Question_Bank, Question, Answer, Activated_Question_Bank, Response
 from django.views.generic import ListView
 from django.http import JsonResponse, HttpResponse
+from utils.helper import retrieveStudent, is_ajax
 
 # Create your views here.
 # class QuestionBankListView(ListView):
@@ -132,11 +133,3 @@ def save_question_view(request, pk, id, qid):
         Response.objects.create(ques=question, ans=answer, std=student)
 
         return JsonResponse({'result': result})
-
-def is_ajax(request):
-    return request.META.get('HTTP_X_REQUESTED_WITH') == 'XMLHttpRequest'
-
-def retrieveStudent(request):
-    user = request.user
-    userProfile = UserProfile.objects.filter(user=user)[0]
-    return Student.objects.filter(user_profile = userProfile)[0]

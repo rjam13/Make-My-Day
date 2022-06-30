@@ -12,12 +12,11 @@ from questions.models import Question_Bank
 from django.http import HttpResponseNotFound
 from django.forms import *
 from django.shortcuts import redirect
-
+from utils.verification import isInstructor
 
 @login_required
 def course_create(request):
-    print(request.user.userprofile.instructor_id)
-    if request.user.userprofile.instructor_id == "":
+    if not isInstructor(request):
         return HttpResponseNotFound('<h1>You are not an instructor</h1>')
     if request.method == 'POST':
         # current_user = request.user.userprofile.instructor_id
@@ -42,11 +41,12 @@ def each_courses(request, pk):
     for stu in list(each_one.students.all()):
         name = stu.user_profile.user.first_name + " " + stu.user_profile.user.last_name
         students.append(name)
+    [closed_qbs, open_qbs, upcoming_qbs] = each_one.retrieveQuestionBanks()
     return render(request, 'course/course_info.html', 
     {'each_one': each_one, 
     'instructors': instructors, 
     'students': students,
-    'qbs': Question_Bank.objects.filter(course=each_one)})
+    'qbs': open_qbs})
 
 @login_required
 def course_registration(request, pk):
