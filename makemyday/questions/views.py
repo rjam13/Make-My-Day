@@ -1,4 +1,5 @@
 import datetime
+from django.utils import timezone
 from http.client import responses
 from re import A
 from django.shortcuts import render
@@ -20,8 +21,11 @@ def question_bank_view(request, pk, id):
 # called injunction with question_bank_view
 def qb_data_view(request, pk, id):
     question_bank = Question_Bank.objects.get(question_bank_id=id)
-    questions = []
-    responses = []
+    student = retrieveStudent(request)
+    closed_qs = []
+    open_qs = []
+    upcoming_qs = []
+
     for q in question_bank.get_questions():
         question_Info = {}
         question_Info['time_Limit'] = str(q.time_Limit)
@@ -31,7 +35,6 @@ def qb_data_view(request, pk, id):
         question_Info['question_id'] = str(q.question_id)
 
         # checks whether if the student has answered this question before or not
-        student = retrieveStudent(request)
         responseToQuestion = Response.objects.filter(ques=q, std=student).first()
         # has response has an answer (wrong or correct)
         if responseToQuestion and responseToQuestion.ans:
@@ -44,10 +47,17 @@ def qb_data_view(request, pk, id):
         else:
             question_Info['answerIsCorrect'] = ""
         
-        questions.append({str(q): question_Info})
+        if q.closeDT <= timezone.now():
+            closed_qs.append({str(q): question_Info})
+        elif q.openDT <= timezone.now() and q.closeDT >= timezone.now():
+            open_qs.append({str(q): question_Info})
+        elif q.openDT >= timezone.now():
+            upcoming_qs.append({str(q): question_Info})
             
     return JsonResponse({
-        'questions': questions,
+        'closed_qs': closed_qs,
+        'open_qs': open_qs,
+        'upcoming_qs': upcoming_qs
     })
 
 def activate_qb(request, pk, id):
@@ -86,7 +96,10 @@ def question_data_view(request, pk, id, qid):
     if studentResponse:
         correct_answer = Answer.objects.get(question=question, isCorrect=True).ans
         if hasattr(studentResponse.ans, 'ans'):
-            result = {str(question): {'correct_answer': correct_answer, 'answered': studentResponse.ans.ans}}
+            result = {str(question): {
+                'correct_answer': correct_answer, 
+                'answered': studentResponse.ans.ans, 
+                'explanation': studentResponse.ans.explanation}}
         else:
             result = {str(question): {'correct_answer': correct_answer, 'answered': "Did not answer"}}
         return JsonResponse({'result': result})
@@ -128,7 +141,10 @@ def save_question_view(request, pk, id, qid):
             if a_selected == a.ans:
                 answer = a
         
-        result = {str(question): {'correct_answer': correct_answer, 'answered': a_selected}}
+        result = {str(question): {
+            'correct_answer': correct_answer, 
+            'answered': a_selected,
+            'explanation': answer.explanation}}
 
         Response.objects.create(ques=question, ans=answer, std=student)
 

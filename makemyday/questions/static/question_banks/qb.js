@@ -2,88 +2,95 @@ const url = window.location.href;
 
 // setting up the quiz from the corresponding question bank indicated in the URl
 $.ajax({
-  type: "GET",
-  url: `${url}data`,
-  success: function (response) {
-    // questions is the array of questions with each value as {question: [info]}
-    const questions = response.questions;
-    // const responses = response.responses
-    const time_Limit = response.time_Limit;
-    let buttonIDs = []
+    type: "GET",
+    url: `${url}data`,
+    success: function (response) {
+        // questions is the array of questions with each value as {question: [info]}
+        const closed_qs = response.closed_qs;
+        const open_qs = response.open_qs;
+        const upcoming_qs = response.upcoming_qs;
+        // const responses = response.responses
+        let buttonIDs = [];
 
-    questions.forEach((element) => {
-      for (const [question, info] of Object.entries(element)) {
-        // {question: [info in an array]} => [question, info]
+        closed_qs.forEach((element) => {
+            for (const [question, info] of Object.entries(element)) {
+                // {question: [info in an array]} => [question, info]
 
-        color = ""
-        if (info['answerIsCorrect'] == "True")
-          color = "bg-success";
-        else if (info['answerIsCorrect'] == "False")
-          color = "bg-danger";
+                color = "";
+                if (info["answerIsCorrect"] == "True") 
+                    color = "bg-success";
+                else if (info["answerIsCorrect"] == "False")
+                    color = "bg-danger";
 
-        const closedBox = document.getElementById("closed-box");
-        const openBox = document.getElementById("open-box");
-        const upcomingBox = document.getElementById("upcoming-box");
-        const questionStatus = checkTimeInbetween(info['openDT'], info['closeDT']);
+                document.getElementById("closed-box").innerHTML += `
+                    <hr>
+                        <div class="mb-2, container, p-3, text-light, h6, ${color}" id="question${info["question_id"]}">
+                        <button class="btn btn-link" id="button${info["question_id"]}">${question}</button>
+                        <p>Closed | Due: ${info["closeDT"].slice(0, 16)} | ${info["weight"]} pts</p>
+                    </div>
+                `;
 
-        html = `
-            <hr>
-            <div class="mb-2, container, p-3, text-light, h6, ${color}" id="question${info['question_id']}">
-              <button class="btn btn-link" id="button${info['question_id']}">${question}</button>
-        `;
-        if (questionStatus == "open-box") {
-          html += `
-              <p>Open | Due: ${info['closeDT'].slice(0,16)} | Time: ${info['time_Limit']} minutes | ${info['weight']} pts</p>
-          `;
-        }
-        else if (questionStatus == "upcoming-box") {
-          html += `
-              <p>Not available until ${info['openDT'].slice(0,16)} | Due: ${info['closeDT'].slice(0,16)} | Time: ${info['time_Limit']} minutes | ${info['weight']} pts</p>
-          `;
-        }
-        else if (questionStatus == "closed-box") {
-          html += `
-              <p>Closed | Due: ${info['closeDT'].slice(0,16)} | ${info['weight']} pts</p>
-          `;
-        }
-        html += `</div>`;
+                buttonIDs.push(info["question_id"]);
+            }
+        });
 
-        if (questionStatus == "open-box") {
-          openBox.innerHTML += html;
-        }
-        else if (questionStatus == "upcoming-box") {
-          upcomingBox.innerHTML += html;
-        }
-        else if (questionStatus == "closed-box") {
-          closedBox.innerHTML += html;
-        }
+        open_qs.forEach((element) => {
+            for (const [question, info] of Object.entries(element)) {
 
-        buttonIDs.push(info['question_id']);
-      }
-    });
+                color = "";
+                if (info["answerIsCorrect"] == "True") 
+                    color = "bg-success";
+                else if (info["answerIsCorrect"] == "False")
+                    color = "bg-danger";
 
-    buttonIDs.forEach(function(buttonID) {
-      $("#button"+buttonID).click(function() {
-        window.location.href = url + buttonID;
-      });
-    });
-  },
-  error: function (error) {
-    console.log(error);
-  },
+                document.getElementById("open-box").innerHTML += `
+                    <hr>
+                        <div class="mb-2, container, p-3, text-light, h6, ${color}" id="question${info["question_id"]}">
+                        <button class="btn btn-link" id="button${info["question_id"]}">${question}</button>
+                        <p>Open | Due: ${info["closeDT"].slice(0, 16)} | Time: ${info["time_Limit"]} minutes | ${info["weight"]} pts</p>
+                    </div>
+                `;
+
+                buttonIDs.push(info["question_id"]);
+            }
+        });
+
+        upcoming_qs.forEach((element) => {
+            for (const [question, info] of Object.entries(element)) {
+
+                color = "";
+                if (info["answerIsCorrect"] == "True") 
+                    color = "bg-success";
+                else if (info["answerIsCorrect"] == "False")
+                    color = "bg-danger";
+
+                document.getElementById("upcoming-box").innerHTML += `
+                    <hr>
+                        <div class="mb-2, container, p-3, text-light, h6, ${color}" id="question${info["question_id"]}">
+                        <a>${question}</a>
+                        <p>Not available until ${info["openDT"].slice(0,16)} | Due: ${info["closeDT"].slice(0, 16)} | Time: ${info["time_Limit"]} minutes | ${info["weight"]} pts</p>
+                    </div>
+                `;
+
+                // document.getElementById("upcoming-box").innerHTML += `
+                //     <hr>
+                //         <div class="mb-2, container, p-3, text-light, h6, ${color}" id="question${info["question_id"]}">
+                //         <button class="btn btn-link" id="button${info["question_id"]}">${question}</button>
+                //         <p>Not available until ${info["openDT"].slice(0,16)} | Due: ${info["closeDT"].slice(0, 16)} | Time: ${info["time_Limit"]} minutes | ${info["weight"]} pts</p>
+                //     </div>
+                // `;
+
+                // buttonIDs.push(info["question_id"]);
+            }
+        });
+
+        buttonIDs.forEach(function (buttonID) {
+            $("#button" + buttonID).click(function () {
+                window.location.href = url + buttonID;
+            });
+        });
+    },
+    error: function (error) {
+        console.log(error);
+    },
 });
-
-function checkTimeInbetween(openDT, closeDT) {
-  const beg = Date.parse(openDT);
-  const now = Date.parse(new Date());
-  const end = Date.parse(closeDT);
-
-  if (beg < now && now < end) {
-    return "open-box";
-  } else if (now < beg) {
-    return "upcoming-box";
-  } else {
-    return "closed-box";
-  }
-
-}

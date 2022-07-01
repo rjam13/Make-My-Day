@@ -20,6 +20,9 @@ def home(request):
             student = Student.objects.get(student_id=request.user.userprofile.student_id)
             closed_aqbs, open_aqbs, upcoming_aqbs = student.retrieveActivatedQuestionBanks()
 
+        for obj in open_aqbs:
+            obj.computeScore()
+
         courses = Course.objects.all().order_by('course_name')
         courses_ = []
         for cour in courses:
@@ -31,5 +34,9 @@ def home(request):
             "course_id": str(cour.course_id),
             "instructors": instructors})
 
-        return render(request, "main/home.html", {'courses': courses_, 'activated_qb': open_aqbs})
+        return render(request, "main/home.html", {
+            'courses': courses_, 
+            'closed_aqbs': closed_aqbs,
+            'open_aqbs': open_aqbs,
+            'upcoming_aqbs': upcoming_aqbs})
     return render(request, "main/home.html", {})

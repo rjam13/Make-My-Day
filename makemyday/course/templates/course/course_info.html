@@ -117,19 +117,40 @@
 
 			<h4 class="text-info mb-0">Available Question Banks</h4>
             <p class="text-muted mb-3">These question banks will appear in your homepage once activated.</p>
-                {% for obj in qbs %}
-                <button
-                    class="btn btn btn-link modal-button"
-                    data-pk="{{obj.question_bank_id}}"
-                    data-question-bank="{{obj.topic}}"
-                    data-num-attempts="{{obj.number_of_attempts}}"
-                    data-start-date="{{obj.start_date}}"
-                    data-end-date="{{obj.end_date}}"
-                    data-frequency="{{obj.frequency}}"
-                    data-toggle="modal" 
-                    data-target="#questionBankStartModal">{{obj.topic}}
-                </button><br>
-                {% endfor %}
+            {% for qb in open_qbs %}
+            <hr />
+            <button
+                class="btn btn btn-link modal-button"
+                data-pk="{{qb.question_bank_id}}"
+                data-question-bank="{{qb.topic}}"
+                data-num-attempts="{{qb.number_of_attempts}}"
+                data-start-date="{{qb.start_date}}"
+                data-end-date="{{qb.end_date}}"
+                data-frequency="{{qb.frequency}}"
+                data-toggle="modal" 
+                data-target="#questionBankStartModal">{{qb.topic}}
+            </button><br>
+            {% endfor %}
+
+            {% if upcoming_qbs %}
+            <h5 class="text-muted mb-0 mt-3">Upcoming Question Banks</h5>
+            <p class="text-muted mb-3">These question banks will appear in your homepage inactive until their open dates.</p>
+            {% for qb in upcoming_qbs %}
+            <hr />
+            <button
+                class="btn btn btn-link modal-button"
+                data-pk="{{qb.question_bank_id}}"
+                data-question-bank="{{qb.topic}}"
+                data-num-attempts="{{qb.number_of_attempts}}"
+                data-start-date="{{qb.start_date}}"
+                data-end-date="{{qb.end_date}}"
+                data-frequency="{{qb.frequency}}"
+                data-toggle="modal" 
+                data-target="#questionBankStartModal">{{qb.topic}}
+            </button><br>
+            {% endfor %}
+            {% endif %}
+
 			<hr>
 		</div>
     </div>

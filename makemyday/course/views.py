@@ -46,7 +46,8 @@ def each_courses(request, pk):
     {'each_one': each_one, 
     'instructors': instructors, 
     'students': students,
-    'qbs': open_qbs})
+    'open_qbs': open_qbs,
+    'upcoming_qbs': upcoming_qbs})
 
 @login_required
 def course_registration(request, pk):

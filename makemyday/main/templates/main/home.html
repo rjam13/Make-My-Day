@@ -55,9 +55,8 @@ Home
     </section>
     <section class="col p-3">
         <h3 class="text-info">To-Do List</h3>
+        {% for qb in open_aqbs %}
         <hr />
-        {% if courses %} 
-        {% for qb in activated_qb %}
         <a
             href="{% url 'course:questions:qb-view' pk=qb.question_bank.course.course_id id=qb.question_bank.question_bank_id %}"
         >
@@ -65,7 +64,27 @@ Home
         </a>
         <p class="mb-0">{{ qb.question_bank.frequency }} | Set reminder: {{ qb.time_to_send }}</p>
         <p><b>Score: {{ qb.score }}</b></p>
+        {% endfor %} 
+
+        {% if upcoming_aqbs %} 
+        <h5>Upcoming</h5>
+        {% for qb in upcoming_aqbs %}
         <hr />
+        <a>
+        <b>{{ qb.question_bank.course }}:</b> {{ qb.question_bank.topic }}
+        </a>
+        <p>{{ qb.question_bank.frequency }} | Set reminder: {{ qb.time_to_send }}</p>
+        {% endfor %} 
+        {% endif %}
+
+        {% if closed_aqbs %} 
+        <h5 class="text-muted" >Closed</h5>
+        {% for qb in closed_aqbs %}
+        <hr />
+        <a>
+        <b>{{ qb.question_bank.course }}:</b> {{ qb.question_bank.topic }}
+        </a>
+        <p><b>Score: {{ qb.score }}</b></p>
         {% endfor %} 
         {% endif %}
     </section>
