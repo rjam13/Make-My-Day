@@ -1,6 +1,7 @@
 const url = window.location.href;
 const questionBox = document.getElementById("question-box");
 const resultBox = document.getElementById("result-box");
+const explanationBox = document.getElementById("explanation-box");
 const timerBox = document.getElementById("timer-box");
 var timer;
 
@@ -129,6 +130,7 @@ function showResults(result) {
 
         const answer = resp["answered"];
         const correct = resp["correct_answer"];
+        const explanation = resp["explanation"];
 
         if (answer == correct) {
             resDiv.classList.add("bg-success");
@@ -138,6 +140,7 @@ function showResults(result) {
             resDiv.innerHTML += ` | Correct answer: ${correct}`;
             resDiv.innerHTML += ` | Answered: ${answer}`;
         }
+        explanationBox.innerHTML += explanation;
     }
     resultBox.append(resDiv);
 }
