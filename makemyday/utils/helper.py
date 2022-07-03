@@ -8,3 +8,4 @@ def retrieveStudent(request):
     userProfile = UserProfile.objects.filter(user=user)[0]
     return Student.objects.filter(user_profile = userProfile)[0]
 
+
