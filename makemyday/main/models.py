@@ -1,5 +1,6 @@
 from cgitb import text
 from email.policy import default
+from fileinput import close
 from tabnanny import verbose
 from django.db import models
 # from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
@@ -7,6 +8,9 @@ from django.contrib.auth.models import User
 from django.db.models.signals import pre_save
 from django.dispatch import receiver
 from django.urls import reverse
+from django.utils import timezone
+import datetime
+from django.core.validators import MaxValueValidator, MinValueValidator
 
 
 # Create your models here.
@@ -52,6 +56,26 @@ class Student(models.Model):
     def __str__(self):
         return str(self.student_id)
 
+    def retrieveActivatedQuestionBanks(self):
+        activated_qbs = self.activated_question_bank_set.all()
+        closed_aqbs = []
+        open_aqbs = []
+        upcoming_aqbs = []
+        for qb in activated_qbs:
+            if qb.question_bank.end_date <= timezone.now():
+                closed_aqbs.append(qb)
+            elif qb.question_bank.start_date <= timezone.now() and qb.question_bank.end_date >= timezone.now():
+                open_aqbs.append(qb)
+            elif qb.question_bank.start_date >= timezone.now():
+                upcoming_aqbs.append(qb)
+
+        return [closed_aqbs, open_aqbs, upcoming_aqbs]
+
+def current_year():
+    return timezone.now().year
+
+def max_value_current_year(value):
+    return MaxValueValidator(current_year())(value)
 
 class Course(models.Model):
     instructors = models.ManyToManyField(Instructor, related_name="instructors")
@@ -60,15 +84,36 @@ class Course(models.Model):
     course_id = models.BigAutoField(primary_key=True, db_column="course_id")
     course_name = models.CharField(max_length=255)
     description = models.TextField(default="")
+    access_code = models.CharField(max_length=100, default="")
+    year = models.PositiveIntegerField(default=timezone.now().year, validators=[MinValueValidator(1900), max_value_current_year])
+    SPRING = "SPRING"
+    SUMMER = "SUMMER" # this means once every two days
+    FALL = "FALL"
+    CHOICES = (
+        (SPRING, "Spring"),
+        (SUMMER, "Summer"),
+        (FALL, "Fall"),
+    )
+    semester = models.CharField(choices = CHOICES, default=FALL, max_length=120)
 
     def __str__(self):
         return str(self.course_name)
-        # return str(self.__dict__)
-        # return str(type(self.instructors))
-        # return self.instructors.set()
 
     def get_absolute_url(self):
         return reverse('course_update', kwargs={'course_id': self.course_id})    
+
+    # This retrieves question banks that are not closed (now is before question_bank.end_date)
+    def retrieveQuestionBanks(self):
+        closed_qbs = self.question_bank_set.filter(
+            end_date__lte=timezone.now())
+        open_qbs = self.question_bank_set.filter(
+            start_date__lte=timezone.now(), 
+            end_date__gte=timezone.now())
+        upcoming_qbs = self.question_bank_set.filter(
+            start_date__gte=timezone.now())
+
+        return [closed_qbs, open_qbs, upcoming_qbs]
+
 
 
 # class MyAccountManager(BaseUserManager): 

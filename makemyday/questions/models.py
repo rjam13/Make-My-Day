@@ -2,6 +2,7 @@ from django.db import models
 from main.models import Course, Student
 import random
 from datetime import datetime
+from django.utils import timezone
 
 # Create your models here.
 
@@ -45,6 +46,29 @@ class Activated_Question_Bank(models.Model):
 
     def __str__(self):
         return str(self.pk)
+
+    def computeScore(self):
+        closed_qs = self.question_bank.question_set.filter(closeDT__lte=timezone.now())
+        for q in closed_qs:
+            # if this closed question does not have a response, create one that is not answered
+            if not Response.objects.filter(std=self.student, ques=q):
+                Response.objects.create(std=self.student, ques=q, ans=None)
+
+        responses = Response.objects.filter(std=self.student, ques__in=self.question_bank.question_set.all())
+        # numberOfResponses is the total number of questions the student answered or Did not answer. 
+        # i.e. the number of questions with a green or red cover in the question bank page
+        # NOTE: This does not equal to the number of questions in a question bank
+        numberOfResponses = len(responses)
+        numberOfCorrect = 0
+        for res in responses:
+            correctAns = res.ques.answer_set.get(isCorrect=True)
+            if res.ans == correctAns:
+                numberOfCorrect += 1
+        
+        if numberOfCorrect == 0:
+            self.score = 0
+        else:
+            self.score = numberOfCorrect/numberOfResponses * 100
 
 class Question(models.Model):
     question_bank = models.ForeignKey(Question_Bank, on_delete=models.CASCADE, default=None)
