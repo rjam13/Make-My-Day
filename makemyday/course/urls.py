@@ -5,6 +5,7 @@ app_name = 'course'
 
 urlpatterns = [
     path("create/", courseViews.course_create, name="course_create"),
+    path("register/", courseViews.course_register, name="course_register"),
     path('<int:pk>/', courseViews.each_courses, name='each_courses'),
     path("<int:pk>/question-banks/", include("questions.urls", namespace="questions")),
     path('delete/<int:pk>/', courseViews.CourseDelete.as_view(), name='course_delete'),

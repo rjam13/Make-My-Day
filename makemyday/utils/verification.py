@@ -5,3 +5,9 @@ def isInstructor(request):
         return False
     else:
         return True
+
+def isStudent(request):
+    if request.user.userprofile.student_id == "":
+        return False
+    else:
+        return True

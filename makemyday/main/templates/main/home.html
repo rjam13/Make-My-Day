@@ -1,8 +1,10 @@
 {% extends 'main/base.html' %} 
 {% load static %} 
 
-{% block scripts %} 
-{% endblock scripts %} 
+{% block scripts %}
+<script src="{% static 'main/home.js' %}" defer></script>
+{% endblock scripts %}
+
 {% block title %}
 Home
 {% endblock %} 
@@ -29,8 +31,8 @@ Home
                             <a
                                 href="{% url 'course:each_courses' each.course_id %}"
                                 class="btn btn-primary"
-                                >Go To Course</a
-                            >
+                                >Go To Course
+                            </a>
                         </div>
                     </div>
                 </div>
@@ -45,9 +47,13 @@ Home
                             If you have an access code that you received from
                             your instructor, enter it here.
                         </p>
-                        <div class="d-grid gap-2">
-                            <a href="#" class="btn btn-primary">Register</a>
-                        </div>
+                        <form id="cr-form">
+                            {% csrf_token %}
+                            <div class="d-grid gap-2 mr-1">
+                                <input type="text" id="cr-code" name="cr-code" placeholder="E.g. specialturtle23" required>
+                                <button type="submit" id="cr-button" class="btn btn-primary">Register</button>
+                            </div>
+                        </form>
                     </div>
                 </div>
             </div>

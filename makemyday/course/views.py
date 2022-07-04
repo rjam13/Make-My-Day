@@ -9,10 +9,11 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from main.models import Course
 from questions.models import Question_Bank
-from django.http import HttpResponseNotFound
+from django.http import HttpResponse, HttpResponseNotFound
 from django.forms import *
 from django.shortcuts import redirect
-from utils.verification import isInstructor
+from utils.verification import isInstructor, isStudent
+from utils.helper import is_ajax, retrieveStudent
 
 @login_required
 def course_create(request):
@@ -29,6 +30,21 @@ def course_create(request):
     else:
         form = InstructorForm()
     return render(request, "course/course_create.html", {'form': form})
+
+@login_required
+def course_register(request):
+    if is_ajax(request):
+        data = request.POST
+        data_ = dict(data.lists())
+        data_.pop('csrfmiddlewaretoken')
+
+        code = data_.pop('code')[0]
+        try:
+            course = Course.objects.get(access_code=code)
+            course.students.add(retrieveStudent(request))
+            return HttpResponse("Code is valid")
+        except:
+            return HttpResponse("Code is not valid")
 
 @login_required
 def each_courses(request, pk):
