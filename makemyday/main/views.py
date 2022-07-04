@@ -27,7 +27,7 @@ def home(request):
         courses = Course.objects.order_by('course_name')
         courses_ = []
         for cour in courses:
-            # if you want to display all courses, comment the code below
+            # if you want to display all courses, comment the line of code below
             if student in cour.students.all():
                 instructors = []
                 for ins in list(cour.instructors.all()):

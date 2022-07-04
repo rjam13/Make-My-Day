@@ -11,6 +11,7 @@ from django.urls import reverse
 from django.utils import timezone
 import datetime
 from django.core.validators import MaxValueValidator, MinValueValidator
+from random import randint
 
 
 # Create your models here.
@@ -84,7 +85,7 @@ class Course(models.Model):
     course_id = models.BigAutoField(primary_key=True, db_column="course_id")
     course_name = models.CharField(max_length=255)
     description = models.TextField(default="")
-    access_code = models.CharField(max_length=100, default="")
+    access_code = models.CharField(max_length=100, default="", blank=True)
     year = models.PositiveIntegerField(default=timezone.now().year, validators=[MinValueValidator(1900), max_value_current_year])
     SPRING = "SPRING"
     SUMMER = "SUMMER" # this means once every two days
@@ -94,10 +95,17 @@ class Course(models.Model):
         (SUMMER, "Summer"),
         (FALL, "Fall"),
     )
-    semester = models.CharField(choices = CHOICES, default=FALL, max_length=120)
+    semester = models.CharField(choices = CHOICES, default=SUMMER, max_length=120)
 
     def __str__(self):
         return str(self.course_name)
+
+    def save(self, *args, **kwargs):
+        if self.access_code == "":
+            self.access_code = self.generateCode()
+            super(Course, self).save(*args, **kwargs)
+        else:
+            super(Course, self).save(*args, **kwargs)
 
     def get_absolute_url(self):
         return reverse('course_update', kwargs={'course_id': self.course_id})    
@@ -113,6 +121,13 @@ class Course(models.Model):
             start_date__gte=timezone.now())
 
         return [closed_qbs, open_qbs, upcoming_qbs]
+    
+    def generateCode(self):
+        with open('main/resources/adjectives.txt', 'r') as a, open('main/resources/nouns.txt', 'r') as n:
+            adjectives = a.readlines()
+            nouns = n.readlines()
+            code = adjectives[randint(0, len(adjectives)-1)].strip() + nouns[randint(0, len(nouns)-1)].strip() + str(randint(10, 100))
+            return code
 
 
 
