@@ -57,7 +57,6 @@ $.ajax({
         else if (questionStatus == "closed-box") {
           closedBox.innerHTML += html;
         }
-
         buttonIDs.push(info['question_id']);
       }
     });

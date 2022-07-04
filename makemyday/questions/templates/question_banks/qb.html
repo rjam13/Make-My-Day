@@ -2,26 +2,33 @@
 {% load static %}
 
 {% block scripts %}
-  <script src="{% static 'question_banks/qb.js' %}" defer></script>
+<script src="{% static 'question_banks/qb.js' %}" defer></script>
 {% endblock scripts %}
-
-{% block title %} {{qb.topic}} {% endblock %}
 
 {% block content %}
 
-<h3>{{qb.topic}}</h3>
+<div class="card ">
+  <div class="card-header"> 
+      <ul class="nav nav-tabs card-header-tabs pull-right"  id="myTab" role="tablist">
+          <li class="nav-item">
+              <a class="nav-link active" id="open-tab" data-toggle="tab" href="#open" role="tab" aria-controls="open" aria-selected="true">Open</a>
+          </li>
+          <li class="nav-item">
+              <a class="nav-link" id="profile-tab" data-toggle="tab" href="#profile" role="tab" aria-controls="profile" aria-selected="false">Profile</a>
+          </li>
+          <li class="nav-item">
+              <a class="nav-link" id="contact-tab" data-toggle="tab" href="#contact" role="tab" aria-controls="contact" aria-selected="false">Contact</a>
+          </li>
+      </ul>
+  </div>
 
-<a href="{% url 'main:home' %}" class="btn btn-danger">go back</a>
+  <div class="card-body">
+      <div class="tab-content" id="myTabContent">
+          <div class="tab-pane fade show active" id="open" role="tabpanel" aria-labelledby="open-tab">...</div>
+          <div class="tab-pane fade" id="profile" role="tabpanel" aria-labelledby="profile-tab">...</div>
+          <div class="tab-pane fade" id="contact" role="tabpanel" aria-labelledby="contact-tab">...</div>
+      </div>
+  </div>
+</div>
 
-<p>For submitting, make sure the user your logged into is a student (i.e. has student_id filled when registered).</p>
-<div id="closed-box">
-  <h4><span class="badge bg-danger">Closed</span></h4>
-</div>
-<div id="open-box">
-  <h4><span class="badge bg-warning">Open</span></h4>
-</div>
-<div id="upcoming-box">
-  <h4><span class="badge bg-primary">Not available</span></h4>
-</div>
 {% endblock %}
-

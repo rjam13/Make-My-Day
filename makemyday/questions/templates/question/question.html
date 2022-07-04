@@ -9,20 +9,21 @@
 
 {% block content %}
 
-<div class="col text-right" id="timer-box">00:00</div>
+<div class="col text-right" id="timer-box" style="position:absolute; right:0; font-size:30px ; margin-right:50px ;margin-top:15px">00:00</div>
 
-<a href="{% url 'course:questions:qb-view' pk=q.question_bank.course.course_id id=q.question_bank.question_bank_id %}" class="btn btn-danger">go back</a>
+<a href="{% url 'course:questions:qb-view' pk=q.question_bank.course.course_id id=q.question_bank.question_bank_id %}" class="btn btn-danger" style="margin-top:20px; margin-left:20px">Exit Quiz</a>
 
 <hr>
-<form id="question-form" class="mt-3 mb-3">
+<form id="question-form" class="mt-3 mb-3" style="position:relative ; left:60px">
   {% csrf_token %}
   <div id="question-box">
     <div class="mb-2">
         <h3 id="question">{{ q.ques }}</h3>
-    </div>
+    </div> 
   </div>
-  <button type="submit" class="btn btn-primary mt-3">save</button>
+  <button type="submit" class="btn btn-primary mt-3">Submit</button>
 </form>
-<div id="result-box"></div>
+
+<div id="result-box"lcass="mt-3 mb-3"></div>
 {% endblock %}
 

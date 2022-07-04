@@ -10,34 +10,8 @@ Home
 {% block loggedin %}
 <div class="row">
     <section class="col-8 p-4">
-        <div class="row">
-            {% if courses %} 
-            {% for each in courses %}
-            <div class="col-sm-3">
-                <div class="card shadow" style="width: 13rem">
-                    <img
-                        src="../../static/cardImage.jpg"
-                        class="card-img-top"
-                        alt="..."
-                        style="width: 100%"
-                    />
-                    <div class="card-body">
-                        <h5 class="card-title">{{ each.course_id }}</h5>
-                        <h6 class="card-title">{{ each.course_name }}</h6>
-                        <p class="card-text">{{ each.instructors }}</p>
-                        <div class="d-grid gap-2">
-                            <a
-                                href="{% url 'course:each_courses' each.course_id %}"
-                                class="btn btn-primary"
-                                >Go To Course</a
-                            >
-                        </div>
-                    </div>
-                </div>
-            </div>
-            {% endfor %} 
-            {% endif %}
-            <div class="col-sm-3">
+        <div class="row" style = "position:relative; left:25px; margin-right:20px">
+            <div class="col-sm-3" style ="margin-top:50px">
                 <div class="card shadow" style="width: 13rem">
                     <div class="card-body">
                         <h5 class="card-title">New Course</h5>
@@ -51,6 +25,33 @@ Home
                     </div>
                 </div>
             </div>
+            {% if courses %} 
+            {% for each in courses %}
+            <div class="col-sm-3" style = "position:relative; margin-top:50px" >
+                <div class="card shadow" style="width: 12rem" >
+                    <img
+                        src="../../static/cardImage.jpg"
+                        class="card-img-top"
+                        alt="..."
+                        style="width: 100%"
+                    />
+                    <div class="card-body"style="min-height:200px; position:relative" >
+                        <h5 class="card-title">{{ each.course_id }}</h5>
+                        <h6 class="card-title">{{ each.course_name }}</h6>
+                        <p class="card-text">{{ each.instructors }}</p>
+                        <div class="d-grid gap-2" style="margin-bottom:50px">
+                            <a
+                                href="{% url 'course:each_courses' each.course_id %}"
+                                class="btn btn-primary"
+                                style = "position:absolute; top:70%; left:17%"
+                                >Go To Course</a
+                            >
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %} 
+            {% endif %}
         </div>
     </section>
     <section class="col p-3">
