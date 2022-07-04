@@ -65,19 +65,6 @@ def each_courses(request, pk):
     'open_qbs': open_qbs,
     'upcoming_qbs': upcoming_qbs})
 
-@login_required
-def course_registration(request, pk):
-    student = request.user.userprofile.student_id
-    instructor = request.user.userprofile.instructor_id
-    print(student)
-    course = Course.objects.get(course_id= pk)
-    print(course)
-    cc = course.students.all()
-    course.students.add(student)
-    print(cc)
-    messages.success(request, 'Successfully registered for a course')
-    return redirect(('course_list'))
-
 
 # delete a course
 class CourseDelete(LoginRequiredMixin, DeleteView):
@@ -94,5 +81,15 @@ class CourseEdit(LoginRequiredMixin, UpdateView):
     success_url = reverse_lazy('course_list')
 
 
-
-
+# @login_required
+# def course_registration(request, pk):
+#     student = request.user.userprofile.student_id
+#     instructor = request.user.userprofile.instructor_id
+#     print(student)
+#     course = Course.objects.get(course_id= pk)
+#     print(course)
+#     cc = course.students.all()
+#     course.students.add(student)
+#     print(cc)
+#     messages.success(request, 'Successfully registered for a course')
+#     return redirect(('course_list'))
