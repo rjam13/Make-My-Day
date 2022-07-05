@@ -1,8 +1,10 @@
 {% extends 'main/base.html' %} 
 {% load static %} 
 
-{% block scripts %} 
-{% endblock scripts %} 
+{% block scripts %}
+<script src="{% static 'main/home.js' %}" defer></script>
+{% endblock scripts %}
+
 {% block title %}
 Home
 {% endblock %} 
@@ -29,14 +31,16 @@ Home
                             <a
                                 href="{% url 'course:each_courses' each.course_id %}"
                                 class="btn btn-primary"
-                                >Go To Course</a
-                            >
+                                >Go To Course
+                            </a>
                         </div>
                     </div>
                 </div>
             </div>
             {% endfor %} 
             {% endif %}
+            <!-- STUDENT'S NEW COURSE CARD -->
+            {% if request.user.userprofile.student_id != "" %} 
             <div class="col-sm-3">
                 <div class="card shadow" style="width: 13rem">
                     <div class="card-body">
@@ -45,19 +49,40 @@ Home
                             If you have an access code that you received from
                             your instructor, enter it here.
                         </p>
-                        <div class="d-grid gap-2">
-                            <a href="#" class="btn btn-primary">Register</a>
+                        <form id="cr-form">
+                            {% csrf_token %}
+                            <input type="text" id="cr-code" name="cr-code" placeholder="E.g. specialturtle23" style="width : 100%;" required>
+                            <div class="d-grid gap-2 mt-2">
+                                <button type="submit" id="cr-button" class="btn btn-primary">Register</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+            <!-- INSTRUCTOR'S CREATE COURSE CARD -->
+            {% if request.user.userprofile.instructor_id != "" %} 
+            <div class="col-sm-3">
+                <div class="card shadow" style="width: 13rem">
+                    <div class="card-body">
+                        <h5 class="card-title">Create Course</h5>
+                        <p class="card-text">
+                            Press here to create a new course.
+                        </p>
+                        <div class="d-grid gap-2 mt-2">
+                            <a href="{% url 'course:course_create' %}" class="btn btn-primary">Create</a>
                         </div>
                     </div>
                 </div>
             </div>
+            {% endif %}
         </div>
     </section>
+    {% if request.user.userprofile.student_id != "" %}
     <section class="col p-3">
         <h3 class="text-info">To-Do List</h3>
+        {% for qb in open_aqbs %}
         <hr />
-        {% if courses %} 
-        {% for qb in activated_qb %}
         <a
             href="{% url 'course:questions:qb-view' pk=qb.question_bank.course.course_id id=qb.question_bank.question_bank_id %}"
         >
@@ -65,10 +90,31 @@ Home
         </a>
         <p class="mb-0">{{ qb.question_bank.frequency }} | Set reminder: {{ qb.time_to_send }}</p>
         <p><b>Score: {{ qb.score }}</b></p>
+        {% endfor %} 
+
+        {% if upcoming_aqbs %} 
+        <h5>Upcoming</h5>
+        {% for qb in upcoming_aqbs %}
         <hr />
+        <a>
+        <b>{{ qb.question_bank.course }}:</b> {{ qb.question_bank.topic }}
+        </a>
+        <p>{{ qb.question_bank.frequency }} | Set reminder: {{ qb.time_to_send }}</p>
+        {% endfor %} 
+        {% endif %}
+
+        {% if closed_aqbs %} 
+        <h5 class="text-muted" >Closed</h5>
+        {% for qb in closed_aqbs %}
+        <hr />
+        <a>
+        <b>{{ qb.question_bank.course }}:</b> {{ qb.question_bank.topic }}
+        </a>
+        <p><b>Score: {{ qb.score }}</b></p>
         {% endfor %} 
         {% endif %}
     </section>
+    {% endif %}
 </div>
 {% endblock %} 
 {% block notloggin %}

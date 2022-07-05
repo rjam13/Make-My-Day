@@ -1,4 +1,5 @@
 import datetime
+from django.utils import timezone
 from http.client import responses
 from re import A
 from django.shortcuts import render
@@ -9,6 +10,7 @@ from django.http import JsonResponse, HttpResponse
 from .form import Question_Bank_Form
 from django.contrib import messages
 from django.shortcuts import redirect
+from utils.helper import retrieveStudent, is_ajax
 
 # Create your views here.
 # class QuestionBankListView(ListView):
@@ -22,8 +24,11 @@ def question_bank_view(request, pk, id):
 # called injunction with question_bank_view
 def qb_data_view(request, pk, id):
     question_bank = Question_Bank.objects.get(question_bank_id=id)
-    questions = []
-    responses = []
+    student = retrieveStudent(request)
+    closed_qs = []
+    open_qs = []
+    upcoming_qs = []
+
     for q in question_bank.get_questions():
         question_Info = {}
         question_Info['time_Limit'] = str(q.time_Limit)
@@ -33,7 +38,6 @@ def qb_data_view(request, pk, id):
         question_Info['question_id'] = str(q.question_id)
 
         # checks whether if the student has answered this question before or not
-        student = retrieveStudent(request)
         responseToQuestion = Response.objects.filter(ques=q, std=student).first()
         # has response has an answer (wrong or correct)
         if responseToQuestion and responseToQuestion.ans:
@@ -46,10 +50,17 @@ def qb_data_view(request, pk, id):
         else:
             question_Info['answerIsCorrect'] = ""
         
-        questions.append({str(q): question_Info})
+        if q.closeDT <= timezone.now():
+            closed_qs.append({str(q): question_Info})
+        elif q.openDT <= timezone.now() and q.closeDT >= timezone.now():
+            open_qs.append({str(q): question_Info})
+        elif q.openDT >= timezone.now():
+            upcoming_qs.append({str(q): question_Info})
             
     return JsonResponse({
-        'questions': questions,
+        'closed_qs': closed_qs,
+        'open_qs': open_qs,
+        'upcoming_qs': upcoming_qs
     })
 
 def activate_qb(request, pk, id):
@@ -81,18 +92,31 @@ def question_view(request, pk, id, qid):
 
 # called injunction with question_view
 def question_data_view(request, pk, id, qid):
+    student = retrieveStudent(request)
     question = Question.objects.get(question_id=int(qid))
-    answers = {}
-    for a in question.get_answers():
-        answers[a.ans] = a.explanation
-    return JsonResponse({
-        'data': answers,
-        'time_Limit': str(question.time_Limit),
-    })
+    studentResponse = Response.objects.filter(std=student, ques=question).first()
+
+    if studentResponse:
+        correct_answer = Answer.objects.get(question=question, isCorrect=True).ans
+        if hasattr(studentResponse.ans, 'ans'):
+            result = {str(question): {
+                'correct_answer': correct_answer, 
+                'answered': studentResponse.ans.ans, 
+                'explanation': studentResponse.ans.explanation}}
+        else:
+            result = {str(question): {'correct_answer': correct_answer, 'answered': "Did not answer"}}
+        return JsonResponse({'result': result})
+    else:
+        answers = {}
+        for a in question.get_answers():
+            answers[a.ans] = a.explanation
+        return JsonResponse({
+            'data': answers,
+            'time_Limit': str(question.time_Limit),
+        })
 
 # called when submitting a question from website
 def save_question_view(request, pk, id, qid):
-    # print(request.POST)
     if is_ajax(request):
         question = Question.objects.get(question_id=qid)
         data = request.POST
@@ -102,47 +126,33 @@ def save_question_view(request, pk, id, qid):
 
         # retrieves the student that answered the qb
         student = retrieveStudent(request)
-        
-        # qb = Question_Bank.objects.get(question_bank_id=qid)
 
-        correct_answer = None
-        answeredCorrect = False
-        result = {}
+        correct_answer = ""
 
         # find the selected answer for the question
-        a_selected = request.POST.get(str(question)) 
+        a_selected = str(request.POST.get(str(question)))
+        if len(a_selected) == 0:
+            a_selected = "Did not answer"
         answer = None
 
-        # if question is answered
-        if a_selected != "":
-            # goes through all the answers of the question, finds the correct one and compares to selected answer
-            question_answers = Answer.objects.filter(question=question)
+        # goes through all the answers of the question, finds the correct one and compares to selected answer
+        question_answers = Answer.objects.filter(question=question)
 
-            for a in question_answers:
-                if a_selected == a.ans:
-                    if a.isCorrect:
-                        answeredCorrect = True
-                        correct_answer = a.ans
-                    answer = a
-                else:
-                    if a.isCorrect:
-                        correct_answer = a.ans
-            
-            result = {str(question): {'correct_answer': correct_answer, 'answered': a_selected}}
-        # questions is not answered
-        else:
-            result = {str(question): 'not answered'}
+        for a in question_answers:
+            if a.isCorrect:
+                correct_answer = a.ans
+            if a_selected == a.ans:
+                answer = a
+        
+        result = {str(question): {
+            'correct_answer': correct_answer, 
+            'answered': a_selected,
+            'explanation': answer.explanation}}
 
-        # print(question)    
-        # print(answer)
-        # print(student)
         Response.objects.create(ques=question, ans=answer, std=student)
-
+        
         return JsonResponse({'result': result})
-        # return JsonResponse({'score': score_, 'results': results})
 
-def is_ajax(request):
-    return request.META.get('HTTP_X_REQUESTED_WITH') == 'XMLHttpRequest'
 
 def retrieveStudent(request):
     user = request.user
@@ -163,3 +173,4 @@ def create_qb(request, pk):
     else:
         form = Question_Bank_Form()   
     return render(request, "question_banks/qb_create.html", {'form': form, 'pk':pk})
+

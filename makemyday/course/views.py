@@ -9,15 +9,15 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from main.models import Course
 from questions.models import Question_Bank
-from django.http import HttpResponseNotFound
+from django.http import HttpResponse, HttpResponseNotFound
 from django.forms import *
 from django.shortcuts import redirect
-
+from utils.verification import isInstructor, isStudent
+from utils.helper import is_ajax, retrieveStudent
 
 @login_required
 def course_create(request):
-    print(request.user.userprofile.instructor_id)
-    if request.user.userprofile.instructor_id == "":
+    if not isInstructor(request):
         return HttpResponseNotFound('<h1>You are not an instructor</h1>')
     if request.method == 'POST':
         # current_user = request.user.userprofile.instructor_id
@@ -26,10 +26,25 @@ def course_create(request):
         if form.is_valid():
                 form.save()
                 messages.success(request, 'Course successfully created')
-                return redirect("/course")
+                return redirect("/")
     else:
         form = InstructorForm()
     return render(request, "course/course_create.html", {'form': form})
+
+@login_required
+def course_register(request):
+    if is_ajax(request):
+        data = request.POST
+        data_ = dict(data.lists())
+        data_.pop('csrfmiddlewaretoken')
+
+        code = data_.pop('code')[0]
+        try:
+            course = Course.objects.get(access_code=code)
+            course.students.add(retrieveStudent(request))
+            return HttpResponse("Code is valid")
+        except:
+            return HttpResponse("Code is not valid")
 
 @login_required
 def each_courses(request, pk):
@@ -42,24 +57,13 @@ def each_courses(request, pk):
     for stu in list(each_one.students.all()):
         name = stu.user_profile.user.first_name + " " + stu.user_profile.user.last_name
         students.append(name)
+    [closed_qbs, open_qbs, upcoming_qbs] = each_one.retrieveQuestionBanks()
     return render(request, 'course/course_info.html', 
     {'each_one': each_one, 
     'instructors': instructors, 
     'students': students,
-    'qbs': Question_Bank.objects.filter(course=each_one)})
-
-@login_required
-def course_registration(request, pk):
-    student = request.user.userprofile.student_id
-    instructor = request.user.userprofile.instructor_id
-    print(student)
-    course = Course.objects.get(course_id= pk)
-    print(course)
-    cc = course.students.all()
-    course.students.add(student)
-    print(cc)
-    messages.success(request, 'Successfully registered for a course')
-    return redirect(('course_list'))
+    'open_qbs': open_qbs,
+    'upcoming_qbs': upcoming_qbs})
 
 
 # delete a course
@@ -77,5 +81,15 @@ class CourseEdit(LoginRequiredMixin, UpdateView):
     success_url = reverse_lazy('course_list')
 
 
-
-
+# @login_required
+# def course_registration(request, pk):
+#     student = request.user.userprofile.student_id
+#     instructor = request.user.userprofile.instructor_id
+#     print(student)
+#     course = Course.objects.get(course_id= pk)
+#     print(course)
+#     cc = course.students.all()
+#     course.students.add(student)
+#     print(cc)
+#     messages.success(request, 'Successfully registered for a course')
+#     return redirect(('course_list'))

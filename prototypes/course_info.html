@@ -80,8 +80,8 @@
                         </ul>
 
                         <div class="pt-4">
-                            <!-- instructor at all -->
-                            {% if request.user.userprofile.instructor_id != "" %}
+                            <!-- instructor -->
+                            {% if request.user.userprofile.student_id == "" and request.user.userprofile.instructor_id != "" %}
                             <a
                                 href="{% url 'course:course_edit' each_one.course_id %}"
                                 class="btn btn-secondary float-left px-4"
@@ -90,6 +90,26 @@
                                 href="{% url 'course:course_delete' each_one.course_id %}"
                                 class="btn btn-danger float-right px-4"
                                 >Delete</a>
+                            <!-- student -->
+                            {% elif request.user.userprofile.instructor_id == "" and request.user.userprofile.student_id != "" %}
+                            <a
+                                href="{% url 'course:course_register' each_one.course_id %}"
+                                class="btn btn-secondary float-right px-4"
+                                >Register for a course</a>
+                            <!-- instructor and student -->
+                            {% else %}
+                            <a
+                                href="{% url 'course:course_edit' each_one.course_id %}"
+                                class="btn btn-secondary float-left px-4"
+                                >Update</a>
+                            <a
+                                href="{% url 'course:course_delete' each_one.course_id %}"
+                                class="btn btn-danger float-right px-4"
+                                >Delete</a>
+                            <a
+                                href="{% url 'course:course_register' each_one.course_id %}"
+                                class="btn btn-secondary float-right px-4"
+                                >Register for a course</a>
                             {% endif %}
                         </div>
         </div>
@@ -132,9 +152,6 @@
             {% endif %}
 
 			<hr>
-            <a class="btn btn-primary btn" href="question-banks/create-qb">
-                Create a Question Bank
-             </a>
 		</div>
     </div>
 </div>
