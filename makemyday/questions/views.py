@@ -6,6 +6,9 @@ from main.models import Student, UserProfile
 from .models import Question_Bank, Question, Answer, Activated_Question_Bank, Response
 from django.views.generic import ListView
 from django.http import JsonResponse, HttpResponse
+from .form import Question_Bank_Form
+from django.contrib import messages
+from django.shortcuts import redirect
 
 # Create your views here.
 # class QuestionBankListView(ListView):
@@ -145,3 +148,18 @@ def retrieveStudent(request):
     user = request.user
     userProfile = UserProfile.objects.filter(user=user)[0]
     return Student.objects.filter(user_profile = userProfile)[0]
+
+def create_qb(request, pk):
+    print(request.method)
+    form = Question_Bank_Form()
+    if request.method == "POST":
+        form = Question_Bank_Form(request.POST)
+        if form.is_valid():
+            form.save()     
+            messages.success(request, 'Question Bank created successfully') 
+            return redirect("/home")
+        else:
+            messages.error(request, 'Error creating Question Bank Form')    
+    else:
+        form = Question_Bank_Form()   
+    return render(request, "question_banks/qb_create.html", {'form': form, 'pk':pk})
