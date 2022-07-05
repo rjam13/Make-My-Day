@@ -32,3 +32,4 @@ pip install mysqlclient
 python -m pip install Django  
 pip install django-crispy-forms  
 pip install django-tables2  
+pip install django-bootstrap-datepicker-plus
