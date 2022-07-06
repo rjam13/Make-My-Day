@@ -4,3 +4,4 @@ from questions.models import Activated_Question_Bank
 class ActivatedQuestionTable(tables.Table):
     class Meta:
         model = Activated_Question_Bank
+        fields = ("student", "score")
