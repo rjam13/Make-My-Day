@@ -26,7 +26,7 @@ def course_create(request):
         if form.is_valid():
                 form.save()
                 messages.success(request, 'Course successfully created')
-                return redirect("/course")
+                return redirect("/")
     else:
         form = InstructorForm()
     return render(request, "course/course_create.html", {'form': form})

@@ -54,7 +54,8 @@ INSTALLED_APPS = [
     'course.apps.CourseConfig',
     'stats.apps.StatsConfig',
     'crispy_forms',
-    'django_tables2'
+    'bootstrap_datepicker_plus',
+    'django_tables2',
 ]
 
 CRISPY_TEMPLATE_PACK = 'bootstrap4'

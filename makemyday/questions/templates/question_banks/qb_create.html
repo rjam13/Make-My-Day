@@ -1,0 +1,13 @@
+{% extends 'main/base.html' %}
+
+{% block title %} Create a Question Bank {% endblock %}
+
+{% block content %}
+  <form method="POST" action="{% url 'course:questions:create_qb' pk=pk %}" class="form-grp">
+    {% csrf_token %}
+    {{ form.as_p }}
+    {{ form.media }}
+    <button type="submit" class= "btn btn-success">Create a Question Bank</button>
+  </form>
+{% endblock %}
+
