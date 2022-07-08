@@ -87,6 +87,10 @@
                                 class="btn btn-secondary float-left px-4"
                                 >Update</a>
                             <a
+                                href="{% url 'course:course_stats_view' each_one.course_id %}"
+                                class="btn btn-secondary float-left px-4"
+                                >Statistics</a>    
+                            <a
                                 href="{% url 'course:course_delete' each_one.course_id %}"
                                 class="btn btn-danger float-right px-4"
                                 >Delete</a>
