@@ -13,6 +13,13 @@
 
 <a href="{% url 'main:home' %}" class="btn btn-danger">go back</a>
 
+{% if request.user.userprofile.instructor_id != "" %}
+<a
+    href="{% url 'course:questions:qb_stats_view' qb.course.course_id qb.question_bank_id %}"
+    class="btn btn-secondary float-left px-4"
+    >Statistics</a>    
+{% endif %}
+
 <p>For submitting, make sure the user your logged into is a student (i.e. has student_id filled when registered).</p>
 <div id="closed-box">
   <h4><span class="badge bg-danger">Closed</span></h4>
