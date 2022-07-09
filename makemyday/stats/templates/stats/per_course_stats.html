@@ -1,0 +1,14 @@
+{% extends 'main/base.html' %}
+{% load django_tables2 %}
+
+{% block content %}
+
+
+{% for table in tables %}
+    <h3>{{table.0}}</h3>
+    {% render_table table.1 %}
+    <br>
+{% endfor %}
+
+
+{% endblock %}

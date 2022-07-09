@@ -1,8 +1,10 @@
 {% extends 'main/base.html' %} 
 {% load static %} 
 
-{% block scripts %} 
-{% endblock scripts %} 
+{% block scripts %}
+<script src="{% static 'main/home.js' %}" defer></script>
+{% endblock scripts %}
+
 {% block title %}
 Home
 {% endblock %} 
@@ -43,17 +45,54 @@ Home
                             <a
                                 href="{% url 'course:each_courses' each.course_id %}"
                                 class="btn btn-primary"
-                                style = "position:absolute; top:70%; left:17%"
-                                >Go To Course</a
-                            >
+                                >Go To Course
+                            </a>
                         </div>
                     </div>
                 </div>
             </div>
             {% endfor %} 
             {% endif %}
+            <!-- STUDENT'S NEW COURSE CARD -->
+            {% if request.user.userprofile.student_id != "" %} 
+            <div class="col-sm-3">
+                <div class="card shadow" style="width: 13rem">
+                    <div class="card-body">
+                        <h5 class="card-title">New Course</h5>
+                        <p class="card-text">
+                            If you have an access code that you received from
+                            your instructor, enter it here.
+                        </p>
+                        <form id="cr-form">
+                            {% csrf_token %}
+                            <input type="text" id="cr-code" name="cr-code" placeholder="E.g. specialturtle23" style="width : 100%;" required>
+                            <div class="d-grid gap-2 mt-2">
+                                <button type="submit" id="cr-button" class="btn btn-primary">Register</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+            <!-- INSTRUCTOR'S CREATE COURSE CARD -->
+            {% if request.user.userprofile.instructor_id != "" %} 
+            <div class="col-sm-3">
+                <div class="card shadow" style="width: 13rem">
+                    <div class="card-body">
+                        <h5 class="card-title">Create Course</h5>
+                        <p class="card-text">
+                            Press here to create a new course.
+                        </p>
+                        <div class="d-grid gap-2 mt-2">
+                            <a href="{% url 'course:course_create' %}" class="btn btn-primary">Create</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
         </div>
     </section>
+    {% if request.user.userprofile.student_id != "" %}
     <section class="col p-3">
         <h3 class="text-info">To-Do List</h3>
         {% for qb in open_aqbs %}
@@ -89,6 +128,7 @@ Home
         {% endfor %} 
         {% endif %}
     </section>
+    {% endif %}
 </div>
 {% endblock %} 
 {% block notloggin %}

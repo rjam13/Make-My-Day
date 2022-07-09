@@ -3,7 +3,7 @@
 {% block title %} Create a Course {% endblock %}
 
 {% block content %}
-  <form method="POST" action="{% url 'course_create' %}" class="form-grp">
+  <form method="POST" action="{% url 'course:course_create' %}" class="form-grp">
     {% csrf_token %}
     {{ form.as_p }}
     <button type="submit" class= "btn btn-success">Create a Course</button>

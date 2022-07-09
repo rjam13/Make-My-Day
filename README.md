@@ -32,3 +32,21 @@ pip install mysqlclient
 python -m pip install Django  
 pip install django-crispy-forms  
 pip install django-tables2  
+pip install django-bootstrap-datepicker-plus
+pip install celery  
+  
+Installing RabbitMQ on Mac:
+https://www.rabbitmq.com/install-homebrew.html  
+https://code2care.org/pages/permanently-set-path-variable-in-mac-zsh-shell  
+brew install rabbitmq  
+rabbitmq-server start  
+or  
+brew services start rabbitmq  
+rabbitmqctl status  
+brew services stop rabbitmq  
+  
+Installing RabbitMQ on Linux:  
+https://www.youtube.com/watch?v=fBfzE0yk97k  
+  
+Installing RabbitMQ on Windows:  
+https://www.youtube.com/watch?v=8lnybIaDz2M  

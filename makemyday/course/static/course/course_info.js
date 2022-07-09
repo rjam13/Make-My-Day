@@ -16,31 +16,6 @@ modalBtns.forEach((modalBtn) =>
         const isRandom = modalBtn.getAttribute("data-isRandom");
         const frequency = modalBtn.getAttribute("data-frequency");
 
-        // $.ajax({
-        //   type: "GET",
-        //   url: `${url}data`,
-        //   success: function (response) {
-        //     const questions = response.questions;
-        //     const time_Limit = response.time_Limit;
-        //     let buttonIDs = []
-
-        //     questions.forEach((element) => {
-        //       for (const [question, info] of Object.entries(element)) {
-
-        //         color = ""
-        //         if (info['answerIsCorrect'] == "True")
-        //           color = "bg-success";
-        //         else if (info['answerIsCorrect'] == "False")
-        //           color = "bg-danger";
-
-        //       }
-        //     });
-        //   },
-        //   error: function (error) {
-        //     console.log(error);
-        //   },
-        // });
-
         modalBody.innerHTML = `
         <div class="h5 mb-3">Are you sure you want to begin <b>${topic}</b>?</div>
         <div class="text-muted">
@@ -56,17 +31,17 @@ modalBtns.forEach((modalBtn) =>
         </div>
         `;
 
-        html = `
-        <div class="h5 mb-3">Are you sure you want to begin <b>${topic}</b>?</div>
-        <div class="text-muted">
-            <ul>
-                <li>Start date: <b>${start_date}</b></li>
-                <li>End date: <b>${end_date}</b></li>
-                <li>Number of attempts per question: <b>${number_of_attempts}</b></li>
-                <li>Frequency: <b>${frequency}</b></li>
-            </ul>
-        `;
-
+        // html = `
+        // <div class="h5 mb-3">Are you sure you want to begin <b>${topic}</b>?</div>
+        // <div class="text-muted">
+        //     <ul>
+        //         <li>Start date: <b>${start_date}</b></li>
+        //         <li>End date: <b>${end_date}</b></li>
+        //         <li>Number of attempts per question: <b>${number_of_attempts}</b></li>
+        //         <li>Frequency: <b>${frequency}</b></li>
+        //     </ul>
+        // `;
+        // 
         // if (frequency == "WEEKLY") {
         //   html += `
         //   <p>Please enter a day and time to receive the questions <b>${frequency}</b>.</p>
@@ -89,13 +64,13 @@ modalBtns.forEach((modalBtn) =>
         //       <input type="time" id="noti" name="noti" required></input>
         //   `
         // }
-
-        html += `
-        <p>Please enter a time to receive the questions <b>${frequency}</b>.</p>
-        <div id="error"></div>
-        <input type="time" id="noti" name="noti" required></input>
-        </div>
-        `;
+        // 
+        // html += `
+        // <p>Please enter a time to receive the questions <b>${frequency}</b>.</p>
+        // <div id="error"></div>
+        // <input type="time" id="noti" name="noti" required></input>
+        // </div>
+        // `;
 
         const form = document.getElementById("noti-form");
         const notification = document.getElementById("noti");
