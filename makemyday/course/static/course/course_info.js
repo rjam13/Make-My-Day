@@ -6,8 +6,6 @@ const url = window.location.href;
 
 modalBtns.forEach((modalBtn) =>
     modalBtn.addEventListener("click", () => {
-        // retrieve all the attributes set to the button by django
-        // views.py:QuestionBankListView(ListView) -> main_qb.html -> here
         const question_bank_id = modalBtn.getAttribute("data-pk");
         const topic = modalBtn.getAttribute("data-question-bank");
         const start_date = modalBtn.getAttribute("data-start-date");
@@ -31,6 +29,7 @@ modalBtns.forEach((modalBtn) =>
         </div>
         `;
 
+        // Comments below is a possible approach to dealing with weekly notifications
         // html = `
         // <div class="h5 mb-3">Are you sure you want to begin <b>${topic}</b>?</div>
         // <div class="text-muted">
@@ -72,9 +71,9 @@ modalBtns.forEach((modalBtn) =>
         // </div>
         // `;
 
+        // const day_notification = document.getElementById("day");
         const form = document.getElementById("noti-form");
         const notification = document.getElementById("noti");
-        // const day_notification = document.getElementById("day");
         const errorElement = document.getElementById("error");
 
         form.addEventListener("submit", (e) => {
@@ -104,8 +103,6 @@ modalBtns.forEach((modalBtn) =>
                     },
                 });
 
-                // goes back to the homepage
-                // window.location.href = url + "question-banks/" + question_bank_id;
                 $("[data-dismiss=modal]").trigger({ type: "click" });
             });
         });

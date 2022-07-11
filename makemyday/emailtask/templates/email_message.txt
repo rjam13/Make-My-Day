@@ -3,4 +3,5 @@ Hello {{name|safe}},
 This is your reminder for {{topic|safe}}.
 
 Thank you!
+From the Make My Day project
 
