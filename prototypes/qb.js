@@ -16,13 +16,20 @@ $.ajax({
             for (const [question, info] of Object.entries(element)) {
                 // {question: [info in an array]} => [question, info]
 
-                document.getElementById("closed-box").innerHTML += `
-                        <div class="mb-2, container, p-3, text-light, h6,id="question${info["question_id"]}">
-                        <button class="btn btn-link" style="text-decoration: none;" id="button${info["question_id"]}">${question}</button>
-                        <p>Closed | Due: ${info["closeDT"].slice(0, 16)} | ${info["weight"]} pts</p>
+                color = "";
+                if (info["answerIsCorrect"] == "True") 
+                    color = "bg-success";
+                else if (info["answerIsCorrect"] == "False")
+                    color = "bg-danger";
 
+                document.getElementById("closed-box").innerHTML += `
+                    <hr>
+                        <div class="mb-2, container, p-3, text-light, h6, ${color}" id="question${info["question_id"]}">
+                        <button class="btn btn-link" id="button${info["question_id"]}">${question}</button>
+                        <p>Closed | Due: ${info["closeDT"].slice(0, 16)} | ${info["weight"]} pts</p>
                     </div>
                 `;
+
                 buttonIDs.push(info["question_id"]);
             }
         });
@@ -30,9 +37,16 @@ $.ajax({
         open_qs.forEach((element) => {
             for (const [question, info] of Object.entries(element)) {
 
+                color = "";
+                if (info["answerIsCorrect"] == "True") 
+                    color = "bg-success";
+                else if (info["answerIsCorrect"] == "False")
+                    color = "bg-danger";
+
                 document.getElementById("open-box").innerHTML += `
-                        <div class="mb-2, container, p-3, text-light, h6, id="question${info["question_id"]}">
-                        <button class="btn btn-link" style="text-decoration: none;" id="button${info["question_id"]}">${question}</button>
+                    <hr>
+                        <div class="mb-2, container, p-3, text-light, h6, ${color}" id="question${info["question_id"]}">
+                        <button class="btn btn-link" id="button${info["question_id"]}">${question}</button>
                         <p>Open | Due: ${info["closeDT"].slice(0, 16)} | Time: ${info["time_Limit"]} minutes | ${info["weight"]} pts</p>
                     </div>
                 `;
@@ -44,14 +58,29 @@ $.ajax({
         upcoming_qs.forEach((element) => {
             for (const [question, info] of Object.entries(element)) {
 
+                color = "";
+                if (info["answerIsCorrect"] == "True") 
+                    color = "bg-success";
+                else if (info["answerIsCorrect"] == "False")
+                    color = "bg-danger";
+
                 document.getElementById("upcoming-box").innerHTML += `
-                        <div class="mb-2, container, p-3, text-light, h6, id="question${info["question_id"]}">
-                        <a >${question}</a>
+                    <hr>
+                        <div class="mb-2, container, p-3, text-light, h6, ${color}" id="question${info["question_id"]}">
+                        <a>${question}</a>
                         <p>Not available until ${info["openDT"].slice(0,16)} | Due: ${info["closeDT"].slice(0, 16)} | Time: ${info["time_Limit"]} minutes | ${info["weight"]} pts</p>
                     </div>
                 `;
 
-                 buttonIDs.push(info["question_id"]);
+                // document.getElementById("upcoming-box").innerHTML += `
+                //     <hr>
+                //         <div class="mb-2, container, p-3, text-light, h6, ${color}" id="question${info["question_id"]}">
+                //         <button class="btn btn-link" id="button${info["question_id"]}">${question}</button>
+                //         <p>Not available until ${info["openDT"].slice(0,16)} | Due: ${info["closeDT"].slice(0, 16)} | Time: ${info["time_Limit"]} minutes | ${info["weight"]} pts</p>
+                //     </div>
+                // `;
+
+                // buttonIDs.push(info["question_id"]);
             }
         });
 

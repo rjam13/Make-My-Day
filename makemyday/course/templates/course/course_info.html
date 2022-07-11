@@ -135,10 +135,12 @@
             {% endfor %}
             {% endif %}
 
+            {% if request.user.userprofile.instructor_id != "" %}
 			<hr>
             <a class="btn btn-primary btn" href="question-banks/create-qb">
                 Create a Question Bank
              </a>
+             {% endif %}
 		</div>
     </div>
 </div>
