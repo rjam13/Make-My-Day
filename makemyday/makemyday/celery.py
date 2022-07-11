@@ -2,6 +2,7 @@
 from __future__ import absolute_import, unicode_literals
 
 import os
+import sys
 
 from celery import Celery
 
@@ -9,6 +10,8 @@ from celery import Celery
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'makemyday.settings')
 
 app = Celery('makemyday')
+app.conf.enable_utc = False
+app.conf.timezone = 'US/Eastern'
 
 # adding django settings module as a configuration source for celery
 app.config_from_object('django.conf:settings', namespace='CELERY')
