@@ -73,6 +73,7 @@ class Activated_Question_Bank(models.Model):
         else:
             super(Activated_Question_Bank, self).save(*args, **kwargs)
     
+    # This function does not run when deleting multiple aqbs
     def delete(self, *args, **kwargs):
         self.schedule.delete()
         super(Activated_Question_Bank, self).delete(*args, **kwargs)
