@@ -3,7 +3,7 @@ from django.contrib.auth.models import User
 from main.models import UserProfile
 
 class ActivatedQuestionTable(tables.Table):
-    student = tables.Column(verbose_name="Student Name")
+    student = tables.Column(verbose_name="Student", attrs={"td": {"style": "padding-right: 25px"}})
     score = tables.Column()
 
     def render_student(self, value):
