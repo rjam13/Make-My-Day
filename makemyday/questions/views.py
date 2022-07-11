@@ -5,12 +5,14 @@ from re import A
 from django.shortcuts import render
 from main.models import Student, UserProfile
 from .models import Question_Bank, Question, Answer, Activated_Question_Bank, Response
+from django_celery_beat.models import CrontabSchedule, PeriodicTask
 from django.views.generic import ListView
 from django.http import JsonResponse, HttpResponse
 from .form import Question_Bank_Form
 from django.contrib import messages
 from django.shortcuts import redirect
 from utils.helper import retrieveStudent, is_ajax
+import json
 
 # Create your views here.
 # class QuestionBankListView(ListView):
@@ -83,7 +85,7 @@ def activate_qb(request, pk, id):
                 'Error': 'Error'
             })
         else:
-            Activated_Question_Bank.objects.create(student=student, question_bank=question_bank, score=0, time_to_send=time_)
+            Activated_Question_Bank.objects.create(student=student, question_bank=question_bank, score=0, time_to_send=time_, schedule= None)
             return HttpResponse(status=200)
 
 def question_view(request, pk, id, qid):

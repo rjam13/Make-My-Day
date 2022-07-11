@@ -1,0 +1,6 @@
+Hello {{name|safe}}, 
+
+This is your reminder for {{topic|safe}}.
+
+Thank you!
+
