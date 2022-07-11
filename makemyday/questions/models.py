@@ -3,6 +3,11 @@ from main.models import Course, Student
 import random
 from datetime import datetime
 from django.utils import timezone
+from emailtask.tasks import send_email_task
+from django_celery_beat.models import CrontabSchedule, PeriodicTask
+import json
+import pytz
+
 
 # Create your models here.
 
@@ -41,11 +46,46 @@ class Question_Bank(models.Model):
 class Activated_Question_Bank(models.Model):
     student = models.ForeignKey(Student, on_delete=models.CASCADE, default=None)
     question_bank = models.ForeignKey(Question_Bank, on_delete=models.CASCADE, default=None)
-    score = models.DecimalField(max_digits=6, decimal_places=2, null=True)
+    schedule = models.OneToOneField(CrontabSchedule, on_delete=models.CASCADE, default=None, null=True)
     time_to_send = models.TimeField(null=True)
+    score = models.DecimalField(max_digits=6, decimal_places=2, null=True)
+
+    def save(self, *args, **kwargs):
+        if self._state.adding:
+            # SET UP AUTOMATED SENDING OF EMAILS HERE
+            # resource: https://django-celery-beat.readthedocs.io/en/latest/#:~:text=To%20create%20a%20periodic%20task,schedule%2C%20created%20%3D%20IntervalSchedule.
+            first_name, email, topic, periodicTaskName = self.get_periodic_task_attributes()
+            self.schedule = CrontabSchedule.objects.create(
+                minute=str(self.time_to_send)[3:5],
+                hour=str(self.time_to_send)[0:2],
+                day_of_week='*',
+                day_of_month='*',
+                month_of_year='*',
+                timezone='US/Eastern'
+            )
+            PeriodicTask.objects.create(
+                crontab=self.schedule,
+                name=periodicTaskName,
+                task='send_email_task',
+                args=json.dumps([first_name, email, topic]), # args: first_name, email, topic
+            )
+            super(Activated_Question_Bank, self).save(*args, **kwargs)
+        else:
+            super(Activated_Question_Bank, self).save(*args, **kwargs)
+    
+    def delete(self, *args, **kwargs):
+        self.schedule.delete()
+        super(Activated_Question_Bank, self).delete(*args, **kwargs)
 
     def __str__(self):
         return str(self.pk)
+    
+    def get_periodic_task_attributes(self):
+        first_name = str(self.student.user_profile.user.first_name)
+        email = str(self.student.user_profile.user.email)
+        topic = str(self.question_bank)
+        periodicTaskName = f'{str(self.pk)} Email Reminder: {str(self.student)}, {topic}'
+        return first_name, email, topic, periodicTaskName
 
     def computeScore(self):
         closed_qs = self.question_bank.question_set.filter(closeDT__lte=timezone.now())
@@ -69,6 +109,12 @@ class Activated_Question_Bank(models.Model):
             self.score = 0
         else:
             self.score = numberOfCorrect/numberOfResponses * 100
+    
+    def sendEmail(self):
+        email = self.student.user_profile.user.email
+        first_name = self.student.user_profile.user.first_name
+        topic = str(self.question_bank)
+        send_email_task.apply_async((first_name, email, topic), countdown=5)
 
 class Question(models.Model):
     question_bank = models.ForeignKey(Question_Bank, on_delete=models.CASCADE, default=None)
