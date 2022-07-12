@@ -1,6 +1,12 @@
 from questions.models import Question_Bank
 from main.models import Course, Instructor
 
+def student_access_only(request):
+    pass
+
+def instructor_access_only(request):
+    pass
+
 def isInstructor(request):
     if request.user.userprofile.instructor_id == "":
         return False

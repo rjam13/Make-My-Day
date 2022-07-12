@@ -42,6 +42,48 @@ class Question_Bank(models.Model):
         if self.isRandom:
             random.shuffle(questions)
         return questions
+    
+    def get_questions_for_student(self, student):
+        questions = list(self.question_set.all())
+        if self.isRandom:
+            random.shuffle(questions)
+    
+        closed_qs = []
+        open_qs = []
+        upcoming_qs = []
+
+        for q in questions:
+            question_Info = {}
+            question_Info['time_Limit'] = str(q.time_Limit)
+            question_Info['openDT'] = str(q.openDT)
+            question_Info['closeDT'] = str(q.closeDT)
+            question_Info['weight'] = str(q.weight)
+            question_Info['question_id'] = str(q.question_id)
+
+            if student:
+                # checks whether if the student has answered this question before or not
+                responseToQuestion = Response.objects.filter(ques=q, std=student).first()
+                # has response has an answer (wrong or correct)
+                if responseToQuestion and responseToQuestion.ans:
+                    answer = Answer.objects.get(answer_id=responseToQuestion.ans.answer_id)
+                    question_Info['answerIsCorrect'] = str(answer.isCorrect)
+                # has response but no answer (response was left blank)
+                elif responseToQuestion:
+                    question_Info['answerIsCorrect'] = "False"
+                # no response
+                else:
+                    question_Info['answerIsCorrect'] = ""
+            else:
+                question_Info['answerIsCorrect'] = ""
+            
+            if q.closeDT <= timezone.now():
+                closed_qs.append({str(q): question_Info})
+            elif q.openDT <= timezone.now() and q.closeDT >= timezone.now():
+                open_qs.append({str(q): question_Info})
+            elif q.openDT >= timezone.now():
+                upcoming_qs.append({str(q): question_Info})
+
+        return closed_qs, open_qs, upcoming_qs
 
 class Activated_Question_Bank(models.Model):
     student = models.ForeignKey(Student, on_delete=models.CASCADE, default=None)
@@ -49,6 +91,9 @@ class Activated_Question_Bank(models.Model):
     schedule = models.OneToOneField(CrontabSchedule, on_delete=models.CASCADE, default=None, null=True)
     time_to_send = models.TimeField(null=True)
     score = models.DecimalField(max_digits=6, decimal_places=2, null=True)
+
+    def __str__(self):
+        return str(self.pk)
 
     def save(self, *args, **kwargs):
         if self._state.adding:
@@ -63,23 +108,25 @@ class Activated_Question_Bank(models.Model):
                 month_of_year='*',
                 timezone='US/Eastern'
             )
+            super(Activated_Question_Bank, self).save(*args, **kwargs)
             PeriodicTask.objects.create(
                 crontab=self.schedule,
                 name=periodicTaskName,
                 task='send_email_task',
-                args=json.dumps([first_name, email, topic]), # args: first_name, email, topic
+                args=json.dumps([self.id]),
             )
-            super(Activated_Question_Bank, self).save(*args, **kwargs)
+            print(self.id)
         else:
             super(Activated_Question_Bank, self).save(*args, **kwargs)
     
     # This function does not run when deleting multiple aqbs
     def delete(self, *args, **kwargs):
-        self.schedule.delete()
+        if self.schedule:
+            self.schedule.delete()
         super(Activated_Question_Bank, self).delete(*args, **kwargs)
 
-    def __str__(self):
-        return str(self.pk)
+    def updateEmail(self):
+        pass
     
     def get_periodic_task_attributes(self):
         first_name = str(self.student.user_profile.user.first_name)
@@ -111,11 +158,11 @@ class Activated_Question_Bank(models.Model):
         else:
             self.score = numberOfCorrect/numberOfResponses * 100
     
-    def sendEmail(self):
-        email = self.student.user_profile.user.email
-        first_name = self.student.user_profile.user.first_name
-        topic = str(self.question_bank)
-        send_email_task.apply_async((first_name, email, topic), countdown=5)
+    # def sendEmail(self):
+    #     email = self.student.user_profile.user.email
+    #     first_name = self.student.user_profile.user.first_name
+    #     topic = str(self.question_bank)
+    #     send_email_task.apply_async((first_name, email, topic), countdown=5)
 
 class Question(models.Model):
     question_bank = models.ForeignKey(Question_Bank, on_delete=models.CASCADE, default=None)
