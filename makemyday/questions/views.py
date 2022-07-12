@@ -7,7 +7,7 @@ from main.models import Student, UserProfile
 from .models import Question_Bank, Question, Answer, Activated_Question_Bank, Response
 from django_celery_beat.models import CrontabSchedule, PeriodicTask
 from django.views.generic import ListView
-from django.http import JsonResponse, HttpResponse
+from django.http import JsonResponse, HttpResponse, HttpResponseNotFound
 from .form import Question_Bank_Form
 from django.contrib import messages
 from django.shortcuts import redirect
@@ -15,49 +15,25 @@ from utils.helper import retrieveStudent, is_ajax
 import json
 
 # Create your views here.
-# class QuestionBankListView(ListView):
-#     model = Question_Bank # sets object_list in main_qb.html
-#     template_name = 'question_banks/main_qb.html'
 
 def question_bank_view(request, pk, id):
     question_bank = Question_Bank.objects.get(question_bank_id=id)
+    student = retrieveStudent(request)
+
+    # access checks
+    if not student:
+        return HttpResponseNotFound('<h1>You need to be a student to answer a question bank.</h1>')
+    if student and not Activated_Question_Bank.objects.filter(student=student, question_bank=question_bank):
+        return HttpResponseNotFound('<h1>You are not signed up for this question bank.</h1>')
+
     return render(request, 'question_banks/qb.html', {'qb': question_bank})
 
 # called injunction with question_bank_view
 def qb_data_view(request, pk, id):
     question_bank = Question_Bank.objects.get(question_bank_id=id)
     student = retrieveStudent(request)
-    closed_qs = []
-    open_qs = []
-    upcoming_qs = []
 
-    for q in question_bank.get_questions():
-        question_Info = {}
-        question_Info['time_Limit'] = str(q.time_Limit)
-        question_Info['openDT'] = str(q.openDT)
-        question_Info['closeDT'] = str(q.closeDT)
-        question_Info['weight'] = str(q.weight)
-        question_Info['question_id'] = str(q.question_id)
-
-        # checks whether if the student has answered this question before or not
-        responseToQuestion = Response.objects.filter(ques=q, std=student).first()
-        # has response has an answer (wrong or correct)
-        if responseToQuestion and responseToQuestion.ans:
-            answer = Answer.objects.get(answer_id=responseToQuestion.ans.answer_id)
-            question_Info['answerIsCorrect'] = str(answer.isCorrect)
-        # has response but no answer (response was left blank)
-        elif responseToQuestion:
-            question_Info['answerIsCorrect'] = "False"
-        # no response
-        else:
-            question_Info['answerIsCorrect'] = ""
-        
-        if q.closeDT <= timezone.now():
-            closed_qs.append({str(q): question_Info})
-        elif q.openDT <= timezone.now() and q.closeDT >= timezone.now():
-            open_qs.append({str(q): question_Info})
-        elif q.openDT >= timezone.now():
-            upcoming_qs.append({str(q): question_Info})
+    closed_qs, open_qs, upcoming_qs = question_bank.get_questions_for_student(student)
             
     return JsonResponse({
         'closed_qs': closed_qs,
@@ -90,6 +66,17 @@ def activate_qb(request, pk, id):
 
 def question_view(request, pk, id, qid):
     question = Question.objects.get(question_id=qid)
+    question_bank = Question_Bank.objects.get(question_bank_id=id)
+    student = retrieveStudent(request)
+
+    # access checks
+    if not student:
+        return HttpResponseNotFound('<h1>You need to be a student to answer a question.</h1>')
+    if student and not Activated_Question_Bank.objects.filter(student=student, question_bank=question_bank):
+        return HttpResponseNotFound('<h1>You are not signed up for answering this question.</h1>')
+    if question.openDT >= timezone.now():
+        return HttpResponseNotFound('<h1>This question is not yet open.</h1>')
+
     return render(request, 'question/question.html', {'q': question})
 
 # called injunction with question_view
@@ -154,12 +141,6 @@ def save_question_view(request, pk, id, qid):
         Response.objects.create(ques=question, ans=answer, std=student)
         
         return JsonResponse({'result': result})
-
-
-def retrieveStudent(request):
-    user = request.user
-    userProfile = UserProfile.objects.filter(user=user)[0]
-    return Student.objects.filter(user_profile = userProfile)[0]
 
 def create_qb(request, pk):
     print(request.method)

@@ -1,7 +1,11 @@
 Hello {{name|safe}}, 
 
-This is your reminder for {{topic|safe}}.
+This is your reminder for {{topic|safe}}. Below are your questions
+{% for q, info in questions.items %}
+{{ q }}
+{{ info }}
 
+{% endfor %}
 Thank you!
 From the Make My Day project
 
