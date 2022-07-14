@@ -1,6 +1,5 @@
 const modalBtns = [...document.getElementsByClassName("modal-button")];
 const modalBody = document.getElementById("modal-body-confirm");
-const startBtn = document.getElementById("start-button");
 const csrf = document.getElementsByName("csrfmiddlewaretoken");
 const url = window.location.href;
 
@@ -76,17 +75,24 @@ modalBtns.forEach((modalBtn) =>
         const notification = document.getElementById("noti");
         const errorElement = document.getElementById("error");
 
-        form.addEventListener("submit", (e) => {
-            e.preventDefault();
-            let messages = [];
-            if (notification.value === "" || notification.value === null) {
-                messages.push("Time for notification is required");
-            }
-            if (messages.length > 0) {
-                errorElement.innerHTML = messages.join(", ");
+        $('#modal-body-confirm').ready(function(){
+
+            // clears the event listeners
+            if ( jQuery._data( form, "events" ) !== undefined) {
+                $('#noti-form').off('submit');
             }
 
-            startBtn.addEventListener("click", () => {
+            $('#noti-form').on('submit',function(e){
+                e.preventDefault();
+                console.log(`signed up for ${topic}`);
+                let messages = [];
+                if (notification.value === "" || notification.value === null) {
+                    messages.push("Time for notification is required");
+                }
+                if (messages.length > 0) {
+                    errorElement.innerHTML = messages.join(", ");
+                }
+
                 const data = {};
                 data["csrfmiddlewaretoken"] = csrf[0].value;
                 data["time"] = String(notification.value);
@@ -104,7 +110,9 @@ modalBtns.forEach((modalBtn) =>
                 });
 
                 $("[data-dismiss=modal]").trigger({ type: "click" });
+                $('#noti-form').off('submit');
             });
+
         });
     })
 );
