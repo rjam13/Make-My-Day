@@ -21,12 +21,20 @@ https://stackoverflow.com/questions/35858052/how-to-fix-command-not-found-mysql-
 Flower Installation:  
 https://flower.readthedocs.io/en/latest/install.html    
   
+# Running with Docker:  
+  
+Make sure you have docker installed  
+https://docs.docker.com/get-docker/  
+  
+In the command line, make your way to the "makemyday" directory (the outer one, not the app) and run:  
+**docker-compose up**  
+  
+# Running without Docker:  
+  
+If the above method did not work, below is a more detailed alternative way.  
+  
 ## Installation:  
   
-https://youtu.be/IiUYyZo2gTk  
-Pip install mysqlclient  
-  
-Creating a python virtual environment:  
 create a folder and place the repository inside  
 python3 -m venv /the/folder/where/repository/lies  
 To activate virtual environment from the folder:  
@@ -34,6 +42,8 @@ source bin/activate
   
 ### Inside venv:  
   
+pip install -r requirements.txt  
+or   
 brew install mysql  
 pip install mysqlclient  
 python -m pip install Django  
@@ -72,10 +82,12 @@ https://www.youtube.com/watch?v=8lnybIaDz2M
 celery flower -A makemyday --port=5555  
 url: http://localhost:5555/  
   
-# Running the website (Mac)  
+## Running the website (Mac)  
+  
+The steps below detail the commands need to run the website for Mac. They should be somewhat the same for other operating systems.  
   
 Steps **1-4** are only for the email/notifcation system.  
-Steps **2-4** make sure your in the makemyday directory (the outer one, not the app itself).  
+Steps **2-5** make sure your in the makemyday directory (the outer one, not the app itself).  
   
 1. terminal 1: "rabbitmq-server start"  
 This starts the messaging queue for the asyncronous sending of Email.
