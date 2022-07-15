@@ -8,20 +8,20 @@ from django.urls import reverse_lazy
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from main.models import Course
-from questions.models import Question_Bank
 from django.http import HttpResponse, HttpResponseNotFound
 from django.forms import *
 from django.shortcuts import redirect
 from utils.verification import isInstructor, isStudent
 from utils.helper import is_ajax, retrieveStudent
+from django.shortcuts import render, get_object_or_404
 
 @login_required
 def course_create(request):
     if not isInstructor(request):
         return HttpResponseNotFound('<h1>You are not an instructor</h1>')
+    current_user = request.user.userprofile.instructor_id
+    print(current_user)    
     if request.method == 'POST':
-        # current_user = request.user.userprofile.instructor_id
-        # print(current_user)
         form = InstructorForm(request.POST)
         if form.is_valid():
                 form.save()
@@ -70,15 +70,30 @@ def each_courses(request, pk):
 class CourseDelete(LoginRequiredMixin, DeleteView):
     model = Course
     template_name = 'course/course_confirm_delete.html'
-    success_url = reverse_lazy('course_list')
+    success_url = reverse_lazy("main:home")
+
+@login_required
+def course_edit(request, pk):
+    course_id = Course.objects.get(course_id= pk)
+    form = CourseForm(instance = course_id)
+    if request.method == 'POST':
+        form = CourseForm(request.POST, instance= course_id)
+        if form.is_valid:
+            form.save()
+            messages.success(request, "You successfully updated the course")
+            return redirect(f"/course/{pk}/")
+
+    context = {'form': form}    
+    return render(request, 'course/course_form.html', context)
 
 
 # update a course
-class CourseEdit(LoginRequiredMixin, UpdateView):
-    model = Course
-    form_class = CourseForm 
-    template_name = 'course/course_form.html'
-    success_url = reverse_lazy('course_list')
+# class CourseEdit(LoginRequiredMixin, UpdateView):
+#     model = Course
+#     form_class = CourseForm 
+#     template_name = 'course/course_form.html'
+#     success_url = reverse_lazy("main:home")
+
 
 
 # @login_required

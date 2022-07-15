@@ -13,5 +13,6 @@ urlpatterns = [
     path('<int:id>/<int:qid>/data/', question_data_view, name='ques-data-view'),
     path('<int:id>/<int:qid>/save/', save_question_view, name='save-ques-view'),
     path("create-qb", questionViews.create_qb, name='create_qb'),
+    path("create-question", questionViews.create_questions, name='create_ques'),
 ]
 
