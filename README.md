@@ -31,10 +31,6 @@ brew install mysql
 pip install mysqlclient  
 python -m pip install Django  
 pip install django-crispy-forms  
-<<<<<<< Updated upstream
-pip install django-tables2  
-pip install django-bootstrap-datepicker-plus
-=======
 pip install django-tables2
 pip install django-bootstrap-datepicker-plus  
->>>>>>> Stashed changes
+
