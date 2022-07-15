@@ -1,0 +1,50 @@
+version: "3.9"
+
+services:
+    django:
+        build: 
+            context: .
+            dockerfile: ./compose/local/django/Dockerfile
+        container_name: django
+        command: python manage.py runserver 0.0.0.0:8000
+        volumes:
+            - .:/usr/src/app
+        ports:
+            - 8000:8000 
+        environment:
+            - DEBUG=1
+            - DJANGO_ALLOWED_HOSTS=localhost 127.0.0.1
+            - CELERY_BROKER=amqp://localhost
+            - CELERY_BACKEND=amqp://localhost
+        depends_on:
+            - rabbitmq3
+    rabbitmq3:
+        container_name: "rabbitmq"
+        image: rabbitmq:3-management-alpine
+        ports:
+            - 5672:5672
+            - 15672:15672 
+    worker:
+        restart: always
+        build: 
+            context: .
+            dockerfile: ./compose/local/django/Dockerfile
+        container_name: worker
+        command: celery -A makemyday worker -l info
+        volumes:
+            - .:/usr/src/app
+        depends_on:
+            - rabbitmq3
+    beat-worker:
+        restart: always
+        build: 
+            context: .
+            dockerfile: ./compose/local/django/Dockerfile
+        container_name: beat-worker
+        command: celery -A makemyday beat -l info --scheduler django_celery_beat.schedulers:DatabaseScheduler
+        volumes:
+            - .:/usr/src/app
+        environment:
+            - CELERY_BROKER=amqp://guest:guest@rabbitmq:5672/
+        depends_on:
+            - rabbitmq3
