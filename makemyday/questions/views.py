@@ -7,6 +7,12 @@ from main.models import Student, UserProfile
 from .models import Question_Bank, Question, Answer, Activated_Question_Bank, Response
 from django_celery_beat.models import CrontabSchedule, PeriodicTask
 from django.views.generic import ListView
+
+from django.http import JsonResponse, HttpResponse
+from .form import Question_Bank_Form, Question_Form
+from django.contrib import messages
+from django.shortcuts import redirect
+from utils.helper import retrieveStudent, is_ajax
 from django.http import JsonResponse, HttpResponse, HttpResponseNotFound
 from .form import Question_Bank_Form
 from django.contrib import messages
@@ -148,12 +154,27 @@ def create_qb(request, pk):
     if request.method == "POST":
         form = Question_Bank_Form(request.POST)
         if form.is_valid():
-            form.save()     
+            instance = form.save()     
             messages.success(request, 'Question Bank created successfully') 
-            return redirect("/home")
+            return redirect(f"/course/{instance.course.course_id}/")
         else:
             messages.error(request, 'Error creating Question Bank Form')    
     else:
         form = Question_Bank_Form()   
     return render(request, "question_banks/qb_create.html", {'form': form, 'pk':pk})
 
+def create_questions(request, pk):
+    print(request.method)
+    form = Question_Form()
+    if request.method == "POST":
+        form = Question_Form(request.POST)
+        if form.is_valid():
+            form.save()     
+            messages.success(request, 'Question created successfully') 
+            pk = pk
+            return redirect(f"/course/{pk}/")
+        else:
+            messages.error(request, 'Error creating Question')    
+    else:
+        form = Question_Form()   
+    return render(request, "question/create_question.html", {'form': form, 'pk':pk})

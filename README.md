@@ -104,3 +104,4 @@ This is for checking the database for any scheduled emails to be sent out.
 5. terminal 5: "python manage.py runserver"  
 Running the website itself  
 
+

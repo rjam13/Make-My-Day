@@ -15,5 +15,6 @@ urlpatterns = [
     path('<int:id>/<int:qid>/save/', save_question_view, name='save-ques-view'),
     path("<int:id>/statistics/", statsViews.per_quesion_bank_stats_view, name='qb_stats_view'),
     path("create-qb", questionViews.create_qb, name='create_qb'),
+    path("create-question", questionViews.create_questions, name='create_ques'),
 ]
 

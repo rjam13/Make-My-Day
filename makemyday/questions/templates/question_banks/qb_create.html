@@ -3,11 +3,19 @@
 {% block title %} Create a Question Bank {% endblock %}
 
 {% block content %}
-  <form method="POST" action="{% url 'course:questions:create_qb' pk=pk %}" class="form-grp">
-    {% csrf_token %}
-    {{ form.as_p }}
-    {{ form.media }}
-    <button type="submit" class= "btn btn-success">Create a Question Bank</button>
-  </form>
+<div class="container">
+  <div class="row justify-content-center">
+    <div class="col-12">
+      <div class="pt-4">
+        <form method="POST" action="{% url 'course:questions:create_qb' pk=pk %}" class="form-grp">
+          {% csrf_token %}
+          {{ form.as_p }}
+          {{ form.media }}
+          <button type="submit" class= "btn btn-success">Create a Question Bank</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
 {% endblock %}
 
