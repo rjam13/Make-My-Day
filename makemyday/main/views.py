@@ -3,6 +3,7 @@ from django.contrib.auth.decorators import login_required
 from main.models import Course, Student
 from questions.models import Activated_Question_Bank, Question_Bank
 from django.utils import timezone
+from datetime import date
 from utils.helper import retrieveStudent, retrieveInstructor
 
 def home(request):
@@ -50,5 +51,6 @@ def home(request):
             'courses': courses_, 
             'closed_aqbs': closed_aqbs,
             'open_aqbs': open_aqbs,
-            'upcoming_aqbs': upcoming_aqbs})
+            'upcoming_aqbs': upcoming_aqbs,
+            'today': date.today().strftime("%B %d, %Y")})
     return render(request, "main/home.html", {})

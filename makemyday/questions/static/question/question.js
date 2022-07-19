@@ -5,8 +5,13 @@ const questionPrompt = document.getElementById("question-prompt");
 const correctPrompt = document.getElementById("correct-prompt");
 const explaPrompt = document.getElementById("explanation-prompt");
 const answerPrompt = document.getElementById("answer-prompt");
+const feedbackSymbol = document.getElementById("feedback-symbol")
 const timerBox = document.getElementById("timer-box");
+var corrAnsDiv = document.getElementById("corr-ans")
+var yourAnsDiv = document.getElementById("your-ans");
 var theFormItself =  document.getElementById('question-form');
+corrAnsDiv.style.display = 'none'
+yourAnsDiv.style.display = 'none'
 theFormItself.style.display = 'none';
 var timer;
 
@@ -121,33 +126,53 @@ const sendData = () => {
 
 questionForm.addEventListener("submit", (e) => {
     e.preventDefault();
-    clearInterval(timer);  
+    clearInterval(timer);
     theFormItself.style.display = 'none';
     sendData();
 });
 
-function showResults(result) { 
+function showResults(result) {
     const quesDiv = document.createElement("div");
     const corrDiv = document.createElement("div");
     const explDiv = document.createElement("div");
     const ansDiv = document.createElement("div");
+    const feedbackSymbolDiv = document.createElement("div")
 
     for (const [question, resp] of Object.entries(result)) {
         quesDiv.innerHTML += question;
         const cls = ["container", "p-3", "text-light", "h6"];
-       
+
         const answer = resp["answered"];
-        const correct = resp["correct_answer"];
+        const correct = ": " + resp["correct_answer"];
         const explanation = resp["explanation"];
         corrDiv.innerHTML += correct;
         explDiv.innerHTML += explanation;
-        ansDiv.innerHTML += "Correct!"
-        if(answer != correct){
-            ansDiv.innerHTML += answer;
+
+        if(": " + answer != correct){ // If answer is
+            feedbackSymbolDiv.innerHTML = `
+            <svg xmlns="http://www.w3.org/2000/svg" style="position:relative; float:left; left:60px; margin-right:8px; color:red; margin-top:4px" width="16" height="16" fill="currentColor" class="bi bi-x-circle" viewBox="0 0 16 16">
+            <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
+            <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z"/>
+            </svg>
+            `
+            ansDiv.innerHTML += ": " + answer;
+        }else{
+            feedbackSymbolDiv.innerHTML = `
+            <svg xmlns="http://www.w3.org/2000/svg" style="position:relative; float:left; left:60px; margin-right:8px; color:green; margin-top:4px" width="16" height="16" fill="currentColor" class="bi bi-check-circle" viewBox="0 0 16 16">
+            <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
+            <path d="M10.97 4.97a.235.235 0 0 0-.02.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-1.071-1.05z"/>
+            </svg>
+            `
+            ansDiv.innerHTML += "&nbspCorrectly!"
+
         }
     }
+    corrAnsDiv.style.display = 'block'
+    yourAnsDiv.style.display = 'block'
     questionPrompt.append(quesDiv);
     correctPrompt.append(corrDiv);
     explaPrompt.append(explDiv);
     answerPrompt.append(ansDiv);
+    feedbackSymbol.append(feedbackSymbolDiv);
 }
+
