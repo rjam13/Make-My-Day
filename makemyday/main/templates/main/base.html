@@ -23,36 +23,35 @@
     <!-- end of datetime  -->
     {% block scripts %} {% endblock scripts %}
     <!-- Core theme CSS (includes Bootstrap)-->
-    <link rel="stylesheet" href="{% static 'css/style.css' %}" />
-    <style>
-        .navbar-custom {
-            background-color:#102D54;
-        }
-    </style>
+    <link rel="stylesheet" href="../../static/css/style.css" />
+<style>
+    .navbar-custom {
+        background-color:#011029;
+    }
+</style>
 
 </head>
 <body class="d-flex flex-column vh-100">
 {% include 'main/messages.html' %}
 <!-- Responsive navbar-->
-{% if user.is_authenticated %}
-<nav class="navbar navbar-expand-lg navbar-dark navbar-custom">
-    <div class="container">
-        <a class="navbar-brand" href="/home">Make My Day</a>
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation"><span class="navbar-toggler-icon"></span></button>
-        <div class="collapse navbar-collapse" id="navbarSupportedContent">
-            <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
-                <li class="nav-item"><a class="nav-link active" aria-current="page" href="/home">Home</a></li>
-                <li class="nav-item"><a class="nav-link" href="/Home">Account</a></li>
-                <li class="nav-item"><a class="nav-link" href="/logout">Log Out</a></li>
-            </ul>
-        </div>
-    </div>
-</nav>
+<nav class="navbar navbar-dark navbar-expand-lg navbar-custom">
 
-{% else %}
-    <nav class="navbar navbar-expand-lg navbar-dark navbar-custom">
-        <div class="container">
-            <a class="navbar-brand" href="/home">Make My Day</a>
+    {% if user.is_authenticated %}
+        <div class="container-fluid px-5">
+            <a class="navbar-brand" href="/home"><img src="../../static/MakeMyDayLogo.svg" style="width: 50%"></a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation"><span class="navbar-toggler-icon"></span></button>
+            <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+                    <li class="nav-item"><a class="nav-link active" aria-current="page" href="/home">Home</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/Home">{{ user.username }}</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/logout">Log Out</a></li>
+                </ul>
+            </div>
+        </div>
+
+    {% else %}
+        <div class="container-fluid px-5">
+            <a class="navbar-brand" href="/home"><img src="../../static/MakeMyDayLogo.svg" style="width: 50%"></a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation"><span class="navbar-toggler-icon"></span></button>
             <div class="collapse navbar-collapse" id="navbarSupportedContent">
                 <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
@@ -62,27 +61,28 @@
                 </ul>
             </div>
         </div>
-    </nav>
-{% endif %}
-<!-- Content section-->
-<section id="content" , name="content" class=" h-100">
-        {% block content %}
+    {% endif %}
+</nav>
 
+<!-- Content section-->
+<section id="content" , name="content" class="main-page flex-fill">
+    {% block content %}
+
+    {% endblock %}
+    {% if user.is_authenticated %}
+        {% block loggedin %}
         {% endblock %}
-        {% if user.is_authenticated %}
-            {% block loggedin %}
-            {% endblock %}
-        {% else %}
-            {% block notloggin %}
-            {% endblock %}
-        {% endif %}
+    {% else %}
+        {% block notloggin %}
+        {% endblock %}
+    {% endif %}
 
 </section>
 
 <!-- Footer-->
 <footer class="bg-light text-center text-lg-start">
     <!-- Copyright -->
-    <div class="text-center p-3" style="background-color: rgba(0, 0, 0, 0.2);">
+    <div class="text-center p-3" style="background-color: white;">
         © 2022 Copyright: MakeMyDay
     </div>
     <!-- Copyright -->
@@ -102,5 +102,4 @@
         integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
         crossorigin="anonymous"
 ></script>
-</body>
 </html>

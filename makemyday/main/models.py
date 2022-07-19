@@ -58,7 +58,7 @@ class Student(models.Model):
         return str(self.student_id)
 
     def retrieveActivatedQuestionBanks(self):
-        activated_qbs = self.activated_question_bank_set.all()
+        activated_qbs = self.activated_question_bank_set.order_by("time_to_send")
         closed_aqbs = []
         open_aqbs = []
         upcoming_aqbs = []

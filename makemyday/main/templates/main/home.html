@@ -1,8 +1,9 @@
-{% extends 'main/base.html' %} 
+{% extends 'main/base.html' %}
 {% load static %} 
 
 {% block scripts %}
-<script src="{% static 'main/home.js' %}" defer></script>
+<script src="{% static 'home.js' %}" defer></script>
+    <link rel="stylesheet" href="../../static/css/home.css">
 {% endblock scripts %}
 
 {% block title %}
@@ -10,42 +11,30 @@ Home
 {% endblock %} 
 
 {% block loggedin %}
-<div class="row">
-    <section class="col-8 p-4">
-        <div class="row">
-            {% if courses %} 
-            {% for each in courses %}
-            <div class="col-sm-3">
-                <div class="card shadow" style="width: 13rem">
+<section class="d-flex  m-4">
+    <section>
+        <div class="d-flex flex-wrap">
+            {% if courses %}
+                {% for each in courses %}
+                <div class="card course-card m-3">
                     <img
                         src="../../static/cardImage.jpg"
-                        class="card-img-top"
                         alt="..."
-                        style="width: 100%"
+                        style="height:40%"
                     />
                     <div class="card-body">
-                        <h5 class="card-title">{{ each.course_id }}</h5>
-                        <h6 class="card-title">{{ each.course_name }}</h6>
-                        <p class="card-text">{{ each.instructors }}</p>
-                        <div class="d-grid gap-2">
-                            <a
-                                href="{% url 'course:each_courses' each.course_id %}"
-                                class="btn btn-primary"
-                                >Go To Course
-                            </a>
-                        </div>
+                        <a class="card-title stretched-link" href="{% url 'course:each_courses' each.course_id %}" style="text-decoration:none">{{ each.course_name }}</a>
+                        <p class="card-title course-card-id">{{ each.course_id }}</p>
                     </div>
                 </div>
-            </div>
             {% endfor %} 
             {% endif %}
             <!-- STUDENT'S NEW COURSE CARD -->
-            {% if request.user.userprofile.student_id != "" %} 
-            <div class="col-sm-3">
-                <div class="card shadow" style="width: 13rem">
+            {% if request.user.userprofile.student_id != "" %}
+                <div class="card course-card m-3">
                     <div class="card-body">
-                        <h5 class="card-title">New Course</h5>
-                        <p class="card-text">
+                        <h5 class="card-title course-card-id">New Course</h5>
+                        <p class="card-text ">
                             If you have an access code that you received from
                             your instructor, enter it here.
                         </p>
@@ -58,14 +47,12 @@ Home
                         </form>
                     </div>
                 </div>
-            </div>
             {% endif %}
             <!-- INSTRUCTOR'S CREATE COURSE CARD -->
-            {% if request.user.userprofile.instructor_id != "" %} 
-            <div class="col-sm-3">
-                <div class="card shadow" style="width: 13rem">
+            {% if request.user.userprofile.instructor_id != "" %}
+                <div class="card course-card m-3">
                     <div class="card-body">
-                        <h5 class="card-title">Create Course</h5>
+                        <h5 class="card-title course-card-id">Create Course</h5>
                         <p class="card-text">
                             Press here to create a new course.
                         </p>
@@ -74,65 +61,89 @@ Home
                         </div>
                     </div>
                 </div>
-            </div>
             {% endif %}
         </div>
     </section>
     {% if request.user.userprofile.student_id != "" %}
-    <section class="col p-3">
-        <h3 class="text-info">To-Do List</h3>
-        {% for qb in open_aqbs %}
-        <hr />
-        <a
-            href="{% url 'course:questions:qb-view' pk=qb.question_bank.course.course_id id=qb.question_bank.question_bank_id %}"
-        >
-        <b>{{ qb.question_bank.course }}:</b> {{ qb.question_bank.topic }}
-        </a>
-        <p class="mb-0">{{ qb.question_bank.frequency }} | Set reminder: {{ qb.time_to_send }}</p>
-        <p><b>Score: {{ qb.score }}</b></p>
-        {% endfor %} 
+        <section class="col-3 d-flex m-2">
+            <div class="calendar flex-fill light">
+                <div class="calendar_header">
+                    <h1 class = "header_title">To-Do</h1>
+                </div>
+                <div class="calendar_plan">
+                    <div class="cl_plan">
+                        <div class="cl_title">Today</div>
+                        <div class="cl_copy">{{ today }}</div>
+                    </div>
+                </div>
+                <div class="calendar_events">
+                    <p class="ce_title">Past due</p>
+                    {% if closed_aqbs %}
+                        {% for qb in closed_aqbs %}
+                            <hr />
+                            <div class="event_item">
+                                <div class="ei_Dot dot_active"></div>
+                                <div class="ei_Title">{{ qb.time_to_send }} ({{ qb.question_bank.frequency }})</div>
+                                <div class="ei_Copy">
+                                    <a class="stretched-link"
+                                       href="{% url 'course:questions:qb-view' pk=qb.question_bank.course.course_id id=qb.question_bank.question_bank_id %}"
+                                    ></a>
+                                    <b>{{ qb.question_bank.course }}:</b> {{ qb.question_bank.topic }}
+                                </div>
+                            </div>
+                        {% endfor %}
+                    {% endif %}
 
-        {% if upcoming_aqbs %} 
-        <h5>Upcoming</h5>
-        {% for qb in upcoming_aqbs %}
-        <hr />
-        <a>
-        <b>{{ qb.question_bank.course }}:</b> {{ qb.question_bank.topic }}
-        </a>
-        <p>{{ qb.question_bank.frequency }} | Set reminder: {{ qb.time_to_send }}</p>
-        {% endfor %} 
-        {% endif %}
+                    <p class="ce_title">Current Events</p>
+                    {% if open_aqbs %}
+                        {% for qb in open_aqbs %}
+                            <hr />
+                            <div class="event_item">
+                                <div class="ei_Dot dot_active"></div>
+                                <div class="ei_Title ">{{ qb.time_to_send }} ({{ qb.question_bank.frequency }})</div>
+                                <div class="ei_Copy">
+                                    <a class="stretched-link"
+                                            href="{% url 'course:questions:qb-view' pk=qb.question_bank.course.course_id id=qb.question_bank.question_bank_id %}"
+                                    ></a>
+                                    <b>{{ qb.question_bank.course }}:</b> {{ qb.question_bank.topic }}
+                                </div>
+                            </div>
+                        {% endfor %}
+                    {% endif %}
 
-        {% if closed_aqbs %} 
-        <h5 class="text-muted" >Closed</h5>
-        {% for qb in closed_aqbs %}
-        <hr />
-        <a>
-        <b>{{ qb.question_bank.course }}:</b> {{ qb.question_bank.topic }}
-        </a>
-        <p><b>Score: {{ qb.score }}</b></p>
-        {% endfor %} 
-        {% endif %}
+                    <p class="ce_title">Upcoming Events</p>
+                        {% if upcoming_aqbs %}
+                            {% for qb in upcoming_aqbs %}
+                                <hr />
+                                <div class="event_item">
+                                    <div class="ei_Dot dot_active"></div>
+                                    <div class="ei_Title">{{ qb.time_to_send }} ({{ qb.question_bank.frequency }})</div>
+                                    <div class="ei_Copy"><a class="stretched-link"
+                                                            href="{% url 'course:questions:qb-view' pk=qb.question_bank.course.course_id id=qb.question_bank.question_bank_id %}"
+                                    ></a>
+                                            <b>{{ qb.question_bank.course }}:</b> {{ qb.question_bank.topic }}
+                                        </div>
+                                </div>
+                            {% endfor %}
+                        {% endif %}
+                </div>
+            </div>
     </section>
     {% endif %}
-</div>
+</section>
 {% endblock %} 
 {% block notloggin %}
 <header
-    class="py-5 bg-image-full"
-    style="background-image: url('../../static/cardImage.jpg')"
+    class="py-5 intro-image"
+    style="background-image: url('../../static/cardImage-1.jpg')"
 >
-    <div class="text-center my-5">
-        <h1 class="text-white fs-3 fw-bolder">Test Landing Page</h1>
-        <p class="text-white-50 mb-0">Landing Page</p>
-    </div>
 </header>
-<section class="bg-light text-center">
-    <div class="container">
+<section class="bg-light text-center flex-fill intro-statement">
+    <div class="container p-4">
         <div class="row">
             <div class="col-lg-4">
                 <div class="mx-auto mb-5 mb-lg-0 mb-lg-3">
-                    <h3>More Info 1</h3>
+                    <h3>More Info</h3>
                     <p class="lead mb-0">
                         This is where there will be more info 1!
                     </p>

@@ -1,0 +1,92 @@
+.intro-image {
+    height: 60%;
+    width: 100%;
+}
+
+.intro-statement {
+    height: 40%;
+    width: 100%;
+}
+
+*{
+    box-sizing:border-box;
+}
+
+body{
+    background-color: whitesmoke;
+}
+
+.light{
+    background-color: #fff;
+}
+
+.calendar{
+    width:370px;
+    box-shadow: 0 0 35px -16px rgba(0,0,0,0.75);
+    font-family: 'Roboto', sans-serif;
+    padding: 20px 30px;
+    color:#363b41;
+    display: inline-block;
+}
+
+.calendar_header{
+    border-bottom: 2px solid rgba(0, 0, 0, 0.08);
+}
+
+.header_copy{
+    color:lightgrey;
+    font-size:20px;
+}
+.calendar_plan{
+    margin:20px 0 40px;
+}
+.cl_plan{
+    width:100%;
+    height: 100px;
+    background-image: linear-gradient(140deg, #011029, #ffcc00);
+    box-shadow: 0 0 52px -18px rgba(0, 0, 0, 0.75);
+    padding:20px;
+    color:#fff;
+}
+
+.cl_copy{
+    font-size:20px;
+    margin: 20px 0;
+    display: inline-block;
+}
+
+.calendar_events{
+    color: lightgrey;
+}
+.ce_title{
+    font-size:14px;
+}
+
+.event_item {
+    margin: 18px 0;
+    padding: 5px;
+    cursor: pointer;
+    transform: rotate(0);
+}
+
+.ei_Dot,.ei_Title{
+    display:inline-block;
+}
+
+.ei_Dot{
+    border-radius:50%;
+    width:10px;
+    height: 10px;
+    background-color: lightgrey;
+    box-shadow: 0 0 52px -18px rgba(0, 0, 0, 0.75);
+}
+
+.ei_Title{
+    margin-left:10px;
+    color:#363b41;
+}
+
+.ei_Copy{
+    margin-left:27px;
+    color:#363b41;
+}
