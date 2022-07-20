@@ -13,20 +13,6 @@ Home
 <div class="row">
     <section class="col-8 p-4">
         <div class="row" style = "position:relative; left:25px; margin-right:20px">
-            <div class="col-sm-3" style ="margin-top:50px">
-                <div class="card shadow" style="width: 13rem">
-                    <div class="card-body">
-                        <h5 class="card-title">New Course</h5>
-                        <p class="card-text">
-                            If you have an access code that you received from
-                            your instructor, enter it here.
-                        </p>
-                        <div class="d-grid gap-2">
-                            <a href="#" class="btn btn-primary">Register</a>
-                        </div>
-                    </div>
-                </div>
-            </div>
             {% if courses %} 
             {% for each in courses %}
             <div class="col-sm-3" style = "position:relative; margin-top:50px" >
@@ -56,7 +42,7 @@ Home
             <!-- STUDENT'S NEW COURSE CARD -->
             {% if request.user.userprofile.student_id != "" %} 
             <div class="col-sm-3">
-                <div class="card shadow" style="width: 13rem">
+                <div class="card shadow" style="width: 13rem; margin-top:50px">
                     <div class="card-body">
                         <h5 class="card-title">New Course</h5>
                         <p class="card-text">
@@ -77,7 +63,7 @@ Home
             <!-- INSTRUCTOR'S CREATE COURSE CARD -->
             {% if request.user.userprofile.instructor_id != "" %} 
             <div class="col-sm-3">
-                <div class="card shadow" style="width: 13rem">
+                <div class="card shadow" style="width: 13rem; margin-top:50px">
                     <div class="card-body">
                         <h5 class="card-title">Create Course</h5>
                         <p class="card-text">
