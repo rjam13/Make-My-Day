@@ -1,13 +1,10 @@
 const modalBtns = [...document.getElementsByClassName("modal-button")];
 const modalBody = document.getElementById("modal-body-confirm");
-const startBtn = document.getElementById("start-button");
 const csrf = document.getElementsByName("csrfmiddlewaretoken");
 const url = window.location.href;
 
 modalBtns.forEach((modalBtn) =>
     modalBtn.addEventListener("click", () => {
-        // retrieve all the attributes set to the button by django
-        // views.py:QuestionBankListView(ListView) -> main_qb.html -> here
         const question_bank_id = modalBtn.getAttribute("data-pk");
         const topic = modalBtn.getAttribute("data-question-bank");
         const start_date = modalBtn.getAttribute("data-start-date");
@@ -31,6 +28,7 @@ modalBtns.forEach((modalBtn) =>
         </div>
         `;
 
+        // Comments below is a possible approach to dealing with weekly notifications
         // html = `
         // <div class="h5 mb-3">Are you sure you want to begin <b>${topic}</b>?</div>
         // <div class="text-muted">
@@ -72,22 +70,29 @@ modalBtns.forEach((modalBtn) =>
         // </div>
         // `;
 
+        // const day_notification = document.getElementById("day");
         const form = document.getElementById("noti-form");
         const notification = document.getElementById("noti");
-        // const day_notification = document.getElementById("day");
         const errorElement = document.getElementById("error");
 
-        form.addEventListener("submit", (e) => {
-            e.preventDefault();
-            let messages = [];
-            if (notification.value === "" || notification.value === null) {
-                messages.push("Time for notification is required");
-            }
-            if (messages.length > 0) {
-                errorElement.innerHTML = messages.join(", ");
+        $('#modal-body-confirm').ready(function(){
+
+            // clears the event listeners
+            if ( jQuery._data( form, "events" ) !== undefined) {
+                $('#noti-form').off('submit');
             }
 
-            startBtn.addEventListener("click", () => {
+            $('#noti-form').on('submit',function(e){
+                e.preventDefault();
+                console.log(`signed up for ${topic}`);
+                let messages = [];
+                if (notification.value === "" || notification.value === null) {
+                    messages.push("Time for notification is required");
+                }
+                if (messages.length > 0) {
+                    errorElement.innerHTML = messages.join(", ");
+                }
+
                 const data = {};
                 data["csrfmiddlewaretoken"] = csrf[0].value;
                 data["time"] = String(notification.value);
@@ -104,10 +109,10 @@ modalBtns.forEach((modalBtn) =>
                     },
                 });
 
-                // goes back to the homepage
-                // window.location.href = url + "question-banks/" + question_bank_id;
                 $("[data-dismiss=modal]").trigger({ type: "click" });
+                $('#noti-form').off('submit');
             });
+
         });
     })
 );

@@ -1,0 +1,34 @@
+{% extends 'main/base.html' %}
+{% load static %}
+
+{% block scripts %}
+  <script src="{% static 'question_banks/qb.js' %}" defer></script>
+{% endblock scripts %}
+
+{% block title %} {{qb.topic}} {% endblock %}
+
+{% block content %}
+
+<h3>{{qb.topic}}</h3>
+
+<a href="{% url 'main:home' %}" class="btn btn-danger">go back</a>
+
+{% if request.user.userprofile.instructor_id != "" %}
+<a
+    href="{% url 'course:questions:qb_stats_view' qb.course.course_id qb.question_bank_id %}"
+    class="btn btn-secondary float-left px-4"
+    >Statistics</a>    
+{% endif %}
+
+<p>For submitting, make sure the user your logged into is a student (i.e. has student_id filled when registered).</p>
+<div id="closed-box">
+  <h4><span class="badge bg-danger">Closed</span></h4>
+</div>
+<div id="open-box">
+  <h4><span class="badge bg-warning">Open</span></h4>
+</div>
+<div id="upcoming-box">
+  <h4><span class="badge bg-primary">Not available</span></h4>
+</div>
+{% endblock %}
+

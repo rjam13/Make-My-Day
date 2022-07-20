@@ -43,10 +43,8 @@
                         <li class="breadcrumb-item">
                             {% if request.user.userprofile.student_id == "" and request.user.userprofile.instructor_id != "" %}
                             <a href="{% url 'main:home' %}">Instructor Home</a>
-                            {% elif request.user.userprofile.instructor_id == "" and request.user.userprofile.student_id != "" %}
-                            <a href="{% url 'main:home' %}">Student Home</a>
                             {% else %}
-                            <a href="{% url 'main:home' %}">TA Home</a>
+                            <a href="{% url 'main:home' %}">Student Home</a>
                             {% endif %}
                         </li>
                         <li class="breadcrumb-item active" aria-current="page">
@@ -113,7 +111,10 @@
                 data-frequency="{{qb.frequency}}"
                 data-toggle="modal" 
                 data-target="#questionBankStartModal">{{qb.topic}}
-            </button><br>
+            </button>
+            <a class="btn btn-success btn" href="question-banks/create-question" style="float: right;">
+                Add Questions
+             </a>
             {% endfor %}
 
             {% if upcoming_qbs %}
@@ -135,10 +136,12 @@
             {% endfor %}
             {% endif %}
 
+            {% if request.user.userprofile.instructor_id != "" %}
 			<hr>
             <a class="btn btn-primary btn" href="question-banks/create-qb">
                 Create a Question Bank
              </a>
+             {% endif %}
 		</div>
     </div>
 </div>

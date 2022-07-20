@@ -53,6 +53,8 @@ INSTALLED_APPS = [
     'questions.apps.QuestionsConfig',
     'course.apps.CourseConfig',
     'stats.apps.StatsConfig',
+    'emailtask.apps.EmailtaskConfig',
+    'django_celery_beat',
     'crispy_forms',
     'bootstrap_datepicker_plus',
     'django_tables2',
@@ -139,7 +141,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'US/Eastern'
 
 USE_I18N = True
 
@@ -151,7 +153,19 @@ USE_TZ = True
 
 STATIC_URL = 'static/'
 
+# needed for docker
+CELERY_BROKER_URL='amqp://guest:guest@rabbitmq:5672/'
+
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.0/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# EMAIL SYSTEM PARAMETERS
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_HOST_USER = 'makemydayfiu@gmail.com'
+EMAIL_HOST_PASSWORD = 'nmkikhtcjvmzqplt'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+DEFAULT_FROM_EMAIL = 'makemydayfiu@gmail.com'

@@ -1,0 +1,83 @@
+version: "3.7"
+services:
+
+django:
+    container_name: django_python
+    image: python:3.6
+    command: bash -c "pip3 install -r requirements.txt && python manage.py runserver 0.0.0.0:8000"
+    volumes:
+        - ${APP_PATH}var/www/api.mylaser.fr/mylazer_backend:/app
+        - ${APP_PATH}var/www/static.mylaser.fr:/app/static
+    depends_on:
+        - mysql
+    working_dir: /app
+    environment:
+        - PYTHONUNBUFFERED=1
+        - MYSQL_HOST=mysql
+        - MYSQL_USER=${MYSQL_USER}
+        - MYSQL_PASSWORD=${MYSQL_PASSWORD}
+        - MYSQL_DATABASE=${MYSQL_DATABASE}
+        - CELERY_BROKER=${CELERY_BROKER}
+mysql:
+    container_name: python_mysql
+    image: mariadb:latest
+    #ports:
+    #    - "3306:3306"
+    volumes:
+        - ${APP_PATH}var/mysql:/var/lib/mysql
+        - ${APP_PATH}etc/mysql:/etc/mysql
+    environment:
+        - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
+        - MYSQL_DATABASE=${MYSQL_DATABASE}
+        - MYSQL_USER=${MYSQL_USER}
+        - MYSQL_PASSWORD=${MYSQL_PASSWORD}
+        - TZ=Europe/Paris
+rabbitmq:
+    image: rabbitmq:3.8.2-management
+    container_name: rabbitmq
+    volumes:
+        - ${APP_PATH}etc/rabbitmq:/etc/rabbitmq/:rw
+        - ${APP_PATH}var/rabbitmq:/var/lib/rabbitmq/:rw
+        - ${APP_PATH}var/log/rabbitmq:/var/log/rabbitmq/:rw
+    environment:
+        HOSTNAME: ${RABBITMQ_HOSTNAME}
+        RABBITMQ_ERLANG_COOKIE: ${RABBITMQ_ERLANG_COOKIE}
+        RABBITMQ_DEFAULT_USER: ${RABBITMQ_DEFAULT_USER}
+        RABBITMQ_DEFAULT_PASS: ${RABBITMQ_DEFAULT_PASS}
+    ports:
+        - ${RABBITMQ_PORT}:5672
+        - ${RABBITMQ_MGT_PORT}:15672
+worker:
+    image: python:3.6
+    container_name: worker
+    command: bash -c "pip3 install -r requirements.txt && celery -A ${PROJECT_NAME} worker -l info"
+    working_dir: /app
+    volumes:
+       - ${APP_PATH}var/www/api.mylaser.fr/mylazer_backend:/app
+    environment:
+        - PYTHONUNBUFFERED=1
+        - MYSQL_HOST=mysql
+        - MYSQL_USER=${MYSQL_USER}
+        - MYSQL_PASSWORD=${MYSQL_PASSWORD}
+        - MYSQL_DATABASE=${MYSQL_DATABASE}
+        - CELERY_BROKER=${CELERY_BROKER}
+    depends_on:
+        - mysql
+        - rabbitmq
+beat-worker:
+    image: python:3.6
+    container_name: beat-worker
+    command: bash -c "pip3 install -r requirements.txt && celery -A ${PROJECT_NAME} beat -l info"
+    working_dir: /app
+    volumes:
+       - ${APP_PATH}var/www/api.mylaser.fr/mylazer_backend:/app
+    environment:
+        - PYTHONUNBUFFERED=1
+        - MYSQL_HOST=mysql
+        - MYSQL_USER=${MYSQL_USER}
+        - MYSQL_PASSWORD=${MYSQL_PASSWORD}
+        - MYSQL_DATABASE=${MYSQL_DATABASE}
+        - CELERY_BROKER=${CELERY_BROKER}
+    depends_on:
+        - mysql
+        - rabbitmq

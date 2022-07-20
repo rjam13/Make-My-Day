@@ -19,12 +19,31 @@
 }
 
 .navbar-custom {
-    background-color:#102D54;
+    background-color:black;
 }
 
-.btn-customs{
-    background-color:white;
-
-    border-color:#ced4da;
-
+.btn{
+    border-radius: 0;
 }
+
+.main-page{
+    background-color: #f5f7f8;
+}
+
+.course-card {
+    height: 250px;
+    width: 275px;
+}
+
+.course-card:hover {
+    box-shadow: 0 10px 30px rgba(0,0,0,.14)
+}
+
+.card {
+    border-radius: 0;
+}
+
+<<<<<<< HEAD
+}
+=======
+>>>>>>> main

@@ -126,12 +126,20 @@ const sendData = () => {
 
 questionForm.addEventListener("submit", (e) => {
     e.preventDefault();
+<<<<<<< HEAD
     clearInterval(timer);  
+=======
+    clearInterval(timer);
+>>>>>>> main
     theFormItself.style.display = 'none';
     sendData();
 });
 
+<<<<<<< HEAD
 function showResults(result) { 
+=======
+function showResults(result) {
+>>>>>>> main
     const quesDiv = document.createElement("div");
     const corrDiv = document.createElement("div");
     const explDiv = document.createElement("div");
@@ -141,7 +149,11 @@ function showResults(result) {
     for (const [question, resp] of Object.entries(result)) {
         quesDiv.innerHTML += question;
         const cls = ["container", "p-3", "text-light", "h6"];
+<<<<<<< HEAD
        
+=======
+
+>>>>>>> main
         const answer = resp["answered"];
         const correct = ": " + resp["correct_answer"];
         const explanation = resp["explanation"];
