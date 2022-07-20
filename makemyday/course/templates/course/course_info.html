@@ -5,8 +5,8 @@
 <script src="{% static 'course/course_info.js' %}" defer></script>
 {% endblock scripts %}
 
-{% block title %} 
-{{each_one.course_name}} 
+{% block title %}
+{{each_one.course_name}}
 {% endblock %}
 
 {% load humanize %} 
@@ -34,116 +34,114 @@
     </div>
 </div>
 
-<div class="container">
-    <div class="row mb-5 fields mt-5">
-        <div class="col-md-6">
-            <section id="bc">
-                <nav aria-label="breadcrumb">
-                    <ol class="breadcrumb">
-                        <li class="breadcrumb-item">
-                            {% if request.user.userprofile.student_id == "" and request.user.userprofile.instructor_id != "" %}
-                            <a href="{% url 'main:home' %}">Instructor Home</a>
-                            {% else %}
-                            <a href="{% url 'main:home' %}">Student Home</a>
-                            {% endif %}
-                        </li>
-                        <li class="breadcrumb-item active" aria-current="page">
-                            {{each_one.course_name}}
-                        </li>
-                    </ol>
-                </nav>
-            </section>
-                        <ul class="list-group list-group-flush mt-5">
-                            <h3 class="text-info">Course Info</h3>
-                            <li class="list-group-item text-secondary">
-                                Course Instructors:
-                                <span class="float-right">{{instructors}}</span>
-                            </li>
-                            <li class="list-group-item text-secondary">
-                                Course Student:
-                                <span class="float-right">{{students}}</span>
-                            </li>
-                            <li class="list-group-item text-secondary">
-                                Course Name:
-                                <span class="float-right"
-                                    >{{each_one.course_name}}</span
-                                >
-                            </li>
-                            <li class="list-group-item text-secondary">
-                                Description:
-                                <span class="float-right"
-                                    >{{each_one.description}}
-                                </span>
-                            </li>
-                        </ul>
-
-                        <div class="pt-4">
-                            <!-- instructor at all -->
+    <!-- Page Content-->
+    <div class="container px-4 px-lg-5">
+        <!-- Heading Row-->
+        <div class="row gx-4 gx-lg-5 align-items-top my-5">
+            <div class="col-lg-7"><img class="img-fluid rounded mb-4 mb-lg-0" src="../../static/course-image.jpg" alt="..." /></div>
+            <div class="col-lg-5">
+                <div class="d-flex" >
+                    <div class="col flex-fill">
+                        <h1 class="font-weight-light">{{each_one.course_name}}</h1>
+                        <p>{{ instructors }}</p>
+                        <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Rem magni quas ex numquam, maxime minus quam molestias corporis quod, ea minima accusamus.</p>
+                    </div>
+                    <div class="col d-flex justify-content-end">
+                        <div class="dropdown">
+                            <button class="navbar-toggler" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-three-dots-vertical" viewBox="0 0 16 16">
+                                <path d="M9.5 13a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0zm0-5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0zm0-5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0z"/>
+                            </svg></button>
                             {% if request.user.userprofile.instructor_id != "" %}
-                            <a
-                                href="{% url 'course:course_edit' each_one.course_id %}"
-                                class="btn btn-secondary float-left px-4"
-                                >Update</a>
-                            <a
-                                href="{% url 'course:course_stats_view' each_one.course_id %}"
-                                class="btn btn-secondary float-left px-4"
-                                >Statistics</a>    
-                            <a
-                                href="{% url 'course:course_delete' each_one.course_id %}"
-                                class="btn btn-danger float-right px-4"
-                                >Delete</a>
+                                <ul class="dropdown-menu">
+                                    <li><a class="dropdown-item" href="{% url 'course:course_edit' each_one.course_id %}">Update Course</a></li>
+                                    <li><a class="dropdown-item" href="{% url 'course:course_delete' each_one.course_id %}">Delete Course</a></li>
+                                </ul>
+                                {% else %}
+                                <ul class="dropdown-menu">
+                                    <li><a class="dropdown-item" href="{% url 'course:course_edit' each_one.course_id %}">Change Reminder Time</a></li>
+                                    <li><a class="dropdown-item" href="{% url 'course:course_delete' each_one.course_id %}">Un-Enroll</a></li>
+                                </ul>
                             {% endif %}
                         </div>
+                    </div>
+                </div>
+
+            </div>
         </div>
-		<div class="col-md-6">
-
-			<h4 class="text-info mb-0">Available Question Banks</h4>
-            <p class="text-muted mb-3">These question banks will appear in your homepage once activated.</p>
-            {% for qb in open_qbs %}
-            <hr />
-            <button
-                class="btn btn btn-link modal-button"
-                data-pk="{{qb.question_bank_id}}"
-                data-question-bank="{{qb.topic}}"
-                data-num-attempts="{{qb.number_of_attempts}}"
-                data-start-date="{{qb.start_date}}"
-                data-end-date="{{qb.end_date}}"
-                data-frequency="{{qb.frequency}}"
-                data-toggle="modal" 
-                data-target="#questionBankStartModal">{{qb.topic}}
-            </button>
-            <a class="btn btn-success btn" href="question-banks/create-question" style="float: right;">
-                Add Questions
-             </a>
-            {% endfor %}
-
-            {% if upcoming_qbs %}
-            <h5 class="text-muted mb-0 mt-3">Upcoming Question Banks</h5>
-            <p class="text-muted mb-3">These question banks will appear in your homepage inactive until their open dates.</p>
-            {% for qb in upcoming_qbs %}
-            <hr />
-            <button
-                class="btn btn btn-link modal-button"
-                data-pk="{{qb.question_bank_id}}"
-                data-question-bank="{{qb.topic}}"
-                data-num-attempts="{{qb.number_of_attempts}}"
-                data-start-date="{{qb.start_date}}"
-                data-end-date="{{qb.end_date}}"
-                data-frequency="{{qb.frequency}}"
-                data-toggle="modal" 
-                data-target="#questionBankStartModal">{{qb.topic}}
-            </button><br>
-            {% endfor %}
-            {% endif %}
-
+        <div class="card text-white bg-black my-5 py-4 text-center">
+        </div>
+        <!-- Content Row-->
+        <div class="row gx-4 gx-lg-5">
+            <!-- instructor at all -->
             {% if request.user.userprofile.instructor_id != "" %}
-			<hr>
-            <a class="btn btn-primary btn" href="question-banks/create-qb">
-                Create a Question Bank
-             </a>
-             {% endif %}
-		</div>
-    </div>
-</div>
+                <div class="col-md-4 mb-5">
+                    <div class="card h-100">
+                        <div class="card-body">
+                            <h2 class="card-title">Course Statistics</h2>
+                            <p class="card-text">Lorem ipsum dolor sit amet, consectetur adipisicing elit. Rem magni quas ex numquam, maxime minus quam molestias corporis quod, ea minima accusamus.</p>
+                        </div>
+                        <div class="card-footer"><a
+                                href="{% url 'course:course_stats_view' each_one.course_id %}"
+                                class="btn btn-secondary float-left px-4"
+                        >Statistics</a></div>
+                    </div>
+                </div>
+                <div class="col-md-4 mb-5">
+                    <div class="card h-100">
+                        <div class="card-body">
+                            <h2 class="card-title">Create a question bank</h2>
+                            <p class="card-text">Lorem ipsum dolor sit amet, consectetur adipisicing elit. Quod tenetur ex natus at dolorem enim! Nesciunt pariatur voluptatem sunt quam eaque, vel, non in id dolore voluptates quos eligendi labore.</p>
+                        </div>
+                        <div class="card-footer"><a class="btn btn-primary btn" href="question-banks/create-qb">
+                            Create a Question Bank
+                        </a></div>
+                    </div>
+                </div>
+            {% endif %}
+            <h4 class="text-info mb-0">Available Question Banks</h4>
+            <p class="text-muted mb-3">These question banks will appear in your homepage once activated.</p>
+            <div class="card-body"><p class="text-white m-0">{% for qb in open_qbs %}
+                <hr />
+                <button
+                        class="btn btn btn-link modal-button"
+                        data-pk="{{qb.question_bank_id}}"
+                        data-question-bank="{{qb.topic}}"
+                        data-num-attempts="{{qb.number_of_attempts}}"
+                        data-start-date="{{qb.start_date}}"
+                        data-end-date="{{qb.end_date}}"
+                        data-frequency="{{qb.frequency}}"
+                        data-toggle="modal"
+                        data-target="#questionBankStartModal">{{qb.topic}}
+                </button>
+                <a class="btn btn-success btn" href="question-banks/create-question" style="float: right;">
+                    Add Questions
+                </a>
+            {% endfor %}
 
+                {% if upcoming_qbs %}
+                    <h5 class="text-muted mb-0 mt-3">Upcoming Question Banks</h5>
+                    <p class="text-muted mb-3">These question banks will appear in your homepage inactive until their open dates.</p>
+                    {% for qb in upcoming_qbs %}
+                        <hr />
+                        <button
+                                class="btn btn btn-link modal-button"
+                                data-pk="{{qb.question_bank_id}}"
+                                data-question-bank="{{qb.topic}}"
+                                data-num-attempts="{{qb.number_of_attempts}}"
+                                data-start-date="{{qb.start_date}}"
+                                data-end-date="{{qb.end_date}}"
+                                data-frequency="{{qb.frequency}}"
+                                data-toggle="modal"
+                                data-target="#questionBankStartModal">{{qb.topic}}
+                        </button><br>
+                    {% endfor %}
+                {% endif %}
+
+                {% if request.user.userprofile.instructor_id != "" %}
+
+                {% endif %}
+                </p>
+            </div>
+        </div>
+    </div>
 {% endblock %}

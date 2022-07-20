@@ -1,8 +1,8 @@
 {% extends 'main/base.html' %}
-{% load static %} 
+{% load static %}
 
+<script src="{% static '../../state/home.js' %}" defer></script>
 {% block scripts %}
-<script src="{% static 'home.js' %}" defer></script>
     <link rel="stylesheet" href="../../static/css/home.css">
 {% endblock scripts %}
 
@@ -11,7 +11,7 @@ Home
 {% endblock %} 
 
 {% block loggedin %}
-<section class="d-flex  m-4">
+<section class="d-flex justify-content-between m-4">
     <section>
         <div class="d-flex flex-wrap">
             {% if courses %}
@@ -65,7 +65,7 @@ Home
         </div>
     </section>
     {% if request.user.userprofile.student_id != "" %}
-        <section class="col-3 d-flex m-2">
+        <section class="col-3 d-flex m-2 justify">
             <div class="calendar flex-fill light">
                 <div class="calendar_header">
                     <h1 class = "header_title">To-Do</h1>
@@ -103,7 +103,7 @@ Home
                                 <div class="ei_Title ">{{ qb.time_to_send }} ({{ qb.question_bank.frequency }})</div>
                                 <div class="ei_Copy">
                                     <a class="stretched-link"
-                                            href="{% url 'course:questions:qb-view' pk=qb.question_bank.course.course_id id=qb.question_bank.question_bank_id %}"
+                                       href="{% url 'course:questions:ques-view' pk=qb.question_bank.course.course_id id=qb.question_bank.question_bank_id qid=1 %}"
                                     ></a>
                                     <b>{{ qb.question_bank.course }}:</b> {{ qb.question_bank.topic }}
                                 </div>
@@ -118,11 +118,11 @@ Home
                                 <div class="event_item">
                                     <div class="ei_Dot dot_active"></div>
                                     <div class="ei_Title">{{ qb.time_to_send }} ({{ qb.question_bank.frequency }})</div>
-                                    <div class="ei_Copy"><a class="stretched-link"
-                                                            href="{% url 'course:questions:qb-view' pk=qb.question_bank.course.course_id id=qb.question_bank.question_bank_id %}"
-                                    ></a>
+                                    <div class="ei_Copy"><a>
+                                        <a>
                                             <b>{{ qb.question_bank.course }}:</b> {{ qb.question_bank.topic }}
-                                        </div>
+                                        </a>
+                                    </a></div>
                                 </div>
                             {% endfor %}
                         {% endif %}
