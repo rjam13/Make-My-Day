@@ -28,4 +28,5 @@ urlpatterns = [
     path("logout", registerViews.logout_request, name= "logout"), 
     path("", include("main.urls")),
     path("course/",include('course.urls')),
+
 ]
