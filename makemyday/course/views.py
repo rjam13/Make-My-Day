@@ -20,10 +20,11 @@ def get_course(request):
         access_code = request.GET.get("access_code", None)
         try:
             course = Course.objects.get(access_code=access_code)
+            instructor_name = f"{course.instructor.user_profile.user.last_name}, {course.instructor.user_profile.user.first_name} "
 
             return JsonResponse({
                 'error': False,
-                'instructor': str(course.instructor),
+                'instructor': instructor_name,
                 'course_id': str(course.course_id),
                 'name': str(course.name),
                 'description': str(course.description),
