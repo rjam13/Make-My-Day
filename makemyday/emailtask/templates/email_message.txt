@@ -1,9 +1,8 @@
 Hello {{name|safe}}, 
 
 This is your reminder for {{topic|safe}}. Below are your questions
-{% for q, info in questions.items %}
+{% for q in questions %}
 {{ q }}
-{{ info }}
 
 {% endfor %}
 Thank you!

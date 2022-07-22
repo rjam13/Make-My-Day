@@ -1,5 +1,4 @@
-from questions.models import Question_Bank
-from main.models import Course, Instructor
+from main.models import Course
 
 def student_access_only(request):
     pass

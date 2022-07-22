@@ -1,8 +1,13 @@
 const url = window.location.href;
 const questionBox = document.getElementById("question-box");
 const resultBox = document.getElementById("result-box");
-const explanationBox = document.getElementById("explanation-box");
+const questionPrompt = document.getElementById("question-prompt");
+const correctPrompt = document.getElementById("correct-prompt");
+const explaPrompt = document.getElementById("explanation-prompt");
+const answerPrompt = document.getElementById("answer-prompt");
 const timerBox = document.getElementById("timer-box");
+var theFormItself =  document.getElementById('question-form');
+theFormItself.style.display = 'none';
 var timer;
 
 const activateTimer = (time) => {
@@ -54,7 +59,6 @@ $.ajax({
     url: `${url}data`,
     success: function (response) {
         // data is the array of questions with each value as {question: [answers in an array]}
-
         if (response.result) {
             showResults(response.result);
         } else {
@@ -63,6 +67,7 @@ $.ajax({
             console.log(data);
             for (const [answer, explanation] of Object.entries(data)) {
                 // {question: [answers in an array]} => [question, answers]
+                theFormItself.style.display = 'block'
                 questionBox.innerHTML += `
                 <div>
                     <input type="radio" class="ans" id="${answer}" name="answers" value="${answer}">
@@ -116,31 +121,33 @@ const sendData = () => {
 
 questionForm.addEventListener("submit", (e) => {
     e.preventDefault();
-    clearInterval(timer);
+    clearInterval(timer);  
+    theFormItself.style.display = 'none';
     sendData();
 });
 
-function showResults(result) {
-    const resDiv = document.createElement("div");
-    questionForm.classList.add("invisible");
-    for (const [question, resp] of Object.entries(result)) {
-        resDiv.innerHTML += question;
-        const cls = ["container", "p-3", "text-light", "h6"];
-        resDiv.classList.add(...cls);
+function showResults(result) { 
+    const quesDiv = document.createElement("div");
+    const corrDiv = document.createElement("div");
+    const explDiv = document.createElement("div");
+    const ansDiv = document.createElement("div");
 
+    for (const [question, resp] of Object.entries(result)) {
+        quesDiv.innerHTML += question;
+        const cls = ["container", "p-3", "text-light", "h6"];
+       
         const answer = resp["answered"];
         const correct = resp["correct_answer"];
         const explanation = resp["explanation"];
-
-        if (answer == correct) {
-            resDiv.classList.add("bg-success");
-            resDiv.innerHTML += ` Answered: ${answer}`;
-        } else {
-            resDiv.classList.add("bg-danger");
-            resDiv.innerHTML += ` | Correct answer: ${correct}`;
-            resDiv.innerHTML += ` | Answered: ${answer}`;
+        corrDiv.innerHTML += correct;
+        explDiv.innerHTML += explanation;
+        ansDiv.innerHTML += "Correct!"
+        if(answer != correct){
+            ansDiv.innerHTML += answer;
         }
-        explanationBox.innerHTML += explanation;
     }
-    resultBox.append(resDiv);
+    questionPrompt.append(quesDiv);
+    correctPrompt.append(corrDiv);
+    explaPrompt.append(explDiv);
+    answerPrompt.append(ansDiv);
 }

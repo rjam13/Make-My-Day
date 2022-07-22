@@ -1,15 +1,9 @@
-from cgitb import text
-from email.policy import default
-from fileinput import close
-from tabnanny import verbose
+from django_celery_beat.models import CrontabSchedule, PeriodicTask
+import json
 from django.db import models
-# from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
 from django.contrib.auth.models import User
-from django.db.models.signals import pre_save
-from django.dispatch import receiver
 from django.urls import reverse
 from django.utils import timezone
-import datetime
 from django.core.validators import MaxValueValidator, MinValueValidator
 from random import randint
 
@@ -41,13 +35,15 @@ class UserProfile(models.Model):
         return str(self.user.username)
 
 
-#Possibly create some foreign keys for student and instructor
 class Instructor(models.Model):
     user_profile = models.OneToOneField(UserProfile, on_delete=models.CASCADE)
     instructor_id = models.CharField(max_length=255, primary_key=True)
 
     def __str__(self):
         return str(self.instructor_id)
+
+    def retrieve_courses(self):
+        return self.course_set.order_by('name')
 
 
 class Student(models.Model):
@@ -57,20 +53,8 @@ class Student(models.Model):
     def __str__(self):
         return str(self.student_id)
 
-    def retrieveActivatedQuestionBanks(self):
-        activated_qbs = self.activated_question_bank_set.order_by("time_to_send")
-        closed_aqbs = []
-        open_aqbs = []
-        upcoming_aqbs = []
-        for qb in activated_qbs:
-            if qb.question_bank.end_date <= timezone.now():
-                closed_aqbs.append(qb)
-            elif qb.question_bank.start_date <= timezone.now() and qb.question_bank.end_date >= timezone.now():
-                open_aqbs.append(qb)
-            elif qb.question_bank.start_date >= timezone.now():
-                upcoming_aqbs.append(qb)
-
-        return [closed_aqbs, open_aqbs, upcoming_aqbs]
+    def retrieve_courses(self):
+        return self.course_set.order_by('name')
 
 def current_year():
     return timezone.now().year
@@ -79,11 +63,11 @@ def max_value_current_year(value):
     return MaxValueValidator(current_year())(value)
 
 class Course(models.Model):
-    instructors = models.ManyToManyField(Instructor, related_name="instructors")
-    students = models.ManyToManyField(Student, related_name="students")
+    instructor = models.ForeignKey(Instructor, on_delete=models.CASCADE)
+    students = models.ManyToManyField(Student, through="Notification")
 
     course_id = models.BigAutoField(primary_key=True, db_column="course_id")
-    course_name = models.CharField(max_length=255)
+    name = models.CharField(max_length=255)
     description = models.TextField(default="")
     access_code = models.CharField(max_length=100, default="", blank=True)
     year = models.PositiveIntegerField(default=timezone.now().year, validators=[MinValueValidator(1900), max_value_current_year])
@@ -98,7 +82,7 @@ class Course(models.Model):
     semester = models.CharField(choices = CHOICES, default=SUMMER, max_length=120)
 
     def __str__(self):
-        return str(self.course_name)
+        return str(self.name)
 
     def save(self, *args, **kwargs):
         if self.access_code == "":
@@ -110,17 +94,17 @@ class Course(models.Model):
     def get_absolute_url(self):
         return reverse('course_update', kwargs={'course_id': self.course_id})    
 
-    # This retrieves question banks that are not closed (now is before question_bank.end_date)
-    def retrieveQuestionBanks(self):
-        closed_qbs = self.question_bank_set.filter(
+    def retrieve_sections(self):
+        closed_sections = self.section_set.filter(
             end_date__lte=timezone.now())
-        open_qbs = self.question_bank_set.filter(
+        # there should only be one open_section
+        open_section = self.section_set.filter(
             start_date__lte=timezone.now(), 
-            end_date__gte=timezone.now())
-        upcoming_qbs = self.question_bank_set.filter(
+            end_date__gte=timezone.now()).first()
+        upcoming_sections = self.section_set.filter(
             start_date__gte=timezone.now())
 
-        return [closed_qbs, open_qbs, upcoming_qbs]
+        return [closed_sections, open_section, upcoming_sections]
     
     def generateCode(self):
         with open('main/resources/adjectives.txt', 'r') as a, open('main/resources/nouns.txt', 'r') as n:
@@ -129,62 +113,45 @@ class Course(models.Model):
             code = adjectives[randint(0, len(adjectives)-1)].strip() + nouns[randint(0, len(nouns)-1)].strip() + str(randint(10, 100))
             return code
 
+class Notification(models.Model):
+    student = models.ForeignKey(Student, on_delete=models.CASCADE, default=None)
+    course = models.ForeignKey(Course, on_delete=models.CASCADE, default=None)
+    schedule = models.OneToOneField(CrontabSchedule, on_delete=models.CASCADE, default=None, null=True)
+    time_to_send = models.TimeField(null=True)
 
-
-# class MyAccountManager(BaseUserManager): 
-#     def create_user(self, username, password= None):
-#         if not username:
-#             raise ValueError("User must have an username")
-
-#         user = self.model(
-#             username=username,
-#             )
-#         user.set_password(password)
-#         user.save(user = self._db)
-#         return user  
-
-#     def create_superuser(self, username, password):
-#         user = self.create_user(
-#              username=username,
-#              password=password,
-#             )
-#         user.is_admin = True
-#         user.is_staff = True
-#         user.is_superuser = True
-#         user.save(using = self._db)
-#         return user
-
-
-
-# class User(AbstractBaseUser, PermissionsMixin):
-#     username = models.CharField(max_length = 30, unique = True)
-#     email = models.EmailField(verbose_name="email", max_length=60, unique=True)
-#     date_joined = models.DateTimeField(verbose_name='date joined', auto_now_add=True)
-#     last_login = models.DateTimeField(verbose_name= 'last login', auto_now =True)
-#     is_admin = models.BooleanField(default=False)
-#     is_active = models.BooleanField(default=True)
-#     is_staff = models.BooleanField(default=False)
-#     is_superuser= models.BooleanField(default=False)
-
-#     USERNAME_FIELD = 'username'
-#     REQUIRED_FIELDS = []
-
-#     objects = MyAccountManager()
-
-#     def __str__(self):
-#         return self.username
-
-#     def has_perm(self, perm, obj = None):
-#         return self.is_admin
-
-#     def has_module_perms(self, app_label):
-#         return True   
-
-# @receiver(post_save, sender=User)
-# def create_user_profile(sender, instance, created, **kwargs):
-#     if created:
-#         UserProfile.objects.create(user=instance)
-
-# @receiver(post_save, sender=User)
-# def save_user_profile(sender, instance, **kwargs):
-#     instance.profile.save()
+    def save(self, *args, **kwargs):
+        if self._state.adding:
+            # SET UP AUTOMATED SENDING OF EMAILS HERE
+            # resource: https://django-celery-beat.readthedocs.io/en/latest/#:~:text=To%20create%20a%20periodic%20task,schedule%2C%20created%20%3D%20IntervalSchedule.
+            first_name, email, course, periodic_task_name = self.get_periodic_task_attributes()
+            self.schedule = CrontabSchedule.objects.create(
+                minute=str(self.time_to_send)[3:5],
+                hour=str(self.time_to_send)[0:2],
+                day_of_week='*',
+                day_of_month='*',
+                month_of_year='*',
+                timezone='US/Eastern'
+            )
+            super(Notification, self).save(*args, **kwargs)
+            PeriodicTask.objects.create(
+                crontab=self.schedule,
+                name=periodic_task_name,
+                task='send_email_task',
+                args=json.dumps([self.id]),
+            )
+            print(self.id)
+        else:
+            super(Notification, self).save(*args, **kwargs)
+    
+    # This function does not run when deleting multiple aqbs
+    def delete(self, *args, **kwargs):
+        if self.schedule:
+            self.schedule.delete()
+        super(Notification, self).delete(*args, **kwargs)
+    
+    def get_periodic_task_attributes(self):
+        first_name = str(self.student.user_profile.user.first_name)
+        email = str(self.student.user_profile.user.email)
+        course = str(self.course)
+        periodic_task_name = f'{str(self.pk)} Email Reminder: {str(self.student)}, {course}'
+        return first_name, email, course, periodic_task_name
