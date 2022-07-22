@@ -28,6 +28,13 @@
                         <hr />
                         <p class="mb-0">Set Reminder: <b>{{ notification.time_to_send }}</b></p>
                         <p class="text-muted">This daily reminder is personal to your account. Depending whether there are questions available for the day, you will be sent an email notification. Go to <b>Options</b> to change the time.</p>
+                        {% elif request.user.userprofile.instructor_id != "" %}
+                        <hr />
+                        <p class="mb-0">Students: 
+                        {% for s in students %}
+                            {{s}},
+                        {% endfor %}
+                        </p>
                         {% endif %}
                     </div>
                     <div class="col d-flex justify-content-end">

@@ -29,7 +29,7 @@ def get_course(request):
                 'name': str(course.name),
                 'description': str(course.description),
                 'year': str(course.year),
-                'semester': str(course.semester)
+                'semester': str(course.semester),
             })
         except:
             return JsonResponse({
