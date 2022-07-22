@@ -1,0 +1,39 @@
+{% extends 'main/base.html' %}
+{% load static %}
+ 
+{% block scripts %}
+<script src="{% static 'section/section.js' %}" defer></script>
+{% endblock scripts %}
+{% if request.user.userprofile.instructor_id != "" %}
+<a
+   href="#"
+   class="btn btn-secondary float-left px-4"
+   >Statistics</a>   
+{% endif %}
+ 
+{% block content %}
+<h2 style="position:relative; text-align:center; margin-top:20px; margin-bottom:20px">{{section.course}}: {{section}}</h2>
+<div class="card ">
+   <div class="card-header">
+       <ul class="nav nav-tabs card-header-tabs pull-right"  id="myTab" role="tablist">
+           <li class="nav-item">
+               <a class="nav-link active" id="today-tab" data-toggle="tab" href="#today" role="tab" aria-controls="today" aria-selected="true">Today</a>
+           </li>
+           <li class="nav-item">
+               <a class="nav-link" id="past-tab" data-toggle="tab" href="#past" role="tab" aria-controls="past" aria-selected="false">Past</a>
+           </li>
+       </ul>
+   </div>
+    <div class="card-body">
+       <div class="tab-content" id="myTabContent">
+           <div class="tab-pane fade show active" id="today" role="tabpanel" aria-labelledby="today-tab">
+             <div id="today-box"></div>
+           </div>
+           <div class="tab-pane fade" id="past" role="tabpanel" aria-labelledby="past-tab">
+               <div id="past-box"></div>
+           </div>
+       </div>
+   </div>
+ </div>
+ <a class="btn btn-success btn m-1" href="{% url 'course:questions:create-question' pk=section.course.course_id %}">Add Questions</a>
+ {% endblock %}

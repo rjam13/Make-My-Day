@@ -1,86 +1,56 @@
 import datetime
 from django.utils import timezone
-from http.client import responses
-from re import A
 from django.shortcuts import render
-from main.models import Student, UserProfile
-from .models import Question_Bank, Question, Answer, Activated_Question_Bank, Response
-from django_celery_beat.models import CrontabSchedule, PeriodicTask
-from django.views.generic import ListView
-
+from main.models import Course
+from .models import Section, Question, Answer, Response
 from django.http import JsonResponse, HttpResponse
-from .form import Question_Bank_Form, Question_Form
+from .form import SectionForm, QuestionForm
 from django.contrib import messages
 from django.shortcuts import redirect
 from utils.helper import retrieveStudent, is_ajax
 from django.http import JsonResponse, HttpResponse, HttpResponseNotFound
-from .form import Question_Bank_Form
 from django.contrib import messages
 from django.shortcuts import redirect
-from utils.helper import retrieveStudent, is_ajax
-import json
+from utils.helper import retrieveStudent, retrieveInstructor, is_ajax
 
 # Create your views here.
-
-def question_bank_view(request, pk, id):
-    question_bank = Question_Bank.objects.get(question_bank_id=id)
+def section_view(request, pk, id):
+    section = Section.objects.get(section_id=id)
     student = retrieveStudent(request)
 
     # access checks
-    if not student:
-        return HttpResponseNotFound('<h1>You need to be a student to answer a question bank.</h1>')
-    if student and not Activated_Question_Bank.objects.filter(student=student, question_bank=question_bank):
-        return HttpResponseNotFound('<h1>You are not signed up for this question bank.</h1>')
+    logged_instructor = retrieveInstructor(request)
+    if not logged_instructor:
+        return HttpResponseNotFound('<h1>You need to be an instructor to access this page.</h1>')
+    if logged_instructor and logged_instructor.instructor_id != section.course.instructor.instructor_id:
+        return HttpResponseNotFound('<h1>This is not your class.</h1>')
+    if student and not Course.objects.get(course_id=pk).students.filter(student_id=student.student_id).exists():
+        return HttpResponseNotFound('<h1>You are not signed up for this course.</h1>')
 
-    return render(request, 'question_banks/qb.html', {'qb': question_bank})
+    return render(request, 'section/section.html', {'section': section})
 
-# called injunction with question_bank_view
-def qb_data_view(request, pk, id):
-    question_bank = Question_Bank.objects.get(question_bank_id=id)
+# called injunction with each_courses in makemyday/course/views.py
+def section_data_view(request, pk, id):
+    section = Section.objects.get(section_id=id)
     student = retrieveStudent(request)
 
-    closed_qs, open_qs, upcoming_qs = question_bank.get_questions_for_student(student)
+    past_questions, current_questions = section.get_questions_for_student(student)
             
     return JsonResponse({
-        'closed_qs': closed_qs,
-        'open_qs': open_qs,
-        'upcoming_qs': upcoming_qs
+        'past_questions': past_questions,
+        'current_questions': current_questions,
     })
-
-def activate_qb(request, pk, id):
-    if is_ajax(request):
-        data = request.POST
-        data_ = dict(data.lists())
-        data_.pop('csrfmiddlewaretoken')
-        print(data_)
-
-        question_bank = Question_Bank.objects.get(question_bank_id=id)
-        student = retrieveStudent(request)
-        time = data_.pop('time')[0]
-        hour = int(time[:2])
-        minute = int(time[3:5])
-        time_ = datetime.time(hour, minute, 0)
-
-        # checks if the student has already activated it
-        if Activated_Question_Bank.objects.filter(student=student, question_bank=question_bank).first():
-            return JsonResponse({
-                'Error': 'Error'
-            })
-        else:
-            Activated_Question_Bank.objects.create(student=student, question_bank=question_bank, score=0, time_to_send=time_, schedule= None)
-            return HttpResponse(status=200)
 
 def question_view(request, pk, id, qid):
     question = Question.objects.get(question_id=qid)
-    question_bank = Question_Bank.objects.get(question_bank_id=id)
     student = retrieveStudent(request)
 
     # access checks
     if not student:
         return HttpResponseNotFound('<h1>You need to be a student to answer a question.</h1>')
-    if student and not Activated_Question_Bank.objects.filter(student=student, question_bank=question_bank):
-        return HttpResponseNotFound('<h1>You are not signed up for answering this question.</h1>')
-    if question.openDT >= timezone.now():
+    if student and not Course.objects.get(course_id=pk).students.filter(student_id=student.student_id).exists():
+        return HttpResponseNotFound('<h1>You are not signed up for this course.</h1>')
+    if question.open_datetime >= timezone.now():
         return HttpResponseNotFound('<h1>This question is not yet open.</h1>')
 
     return render(request, 'question/question.html', {'q': question})
@@ -89,25 +59,24 @@ def question_view(request, pk, id, qid):
 def question_data_view(request, pk, id, qid):
     student = retrieveStudent(request)
     question = Question.objects.get(question_id=int(qid))
-    studentResponse = Response.objects.filter(std=student, ques=question).first()
+    studentResponse = Response.objects.filter(student=student, question=question).first()
 
     if studentResponse:
-        correct_answer = Answer.objects.get(question=question, isCorrect=True).ans
-        if hasattr(studentResponse.ans, 'ans'):
+        correct_answer = Answer.objects.get(question=question, is_correct=True).text
+        if hasattr(studentResponse.answer, 'text'):
             result = {str(question): {
                 'correct_answer': correct_answer, 
-                'answered': studentResponse.ans.ans, 
-                'explanation': studentResponse.ans.explanation}}
+                'answered': studentResponse.answer.text, 
+                'explanation': studentResponse.answer.explanation}}
         else:
             result = {str(question): {'correct_answer': correct_answer, 'answered': "Did not answer"}}
         return JsonResponse({'result': result})
     else:
         answers = {}
         for a in question.get_answers():
-            answers[a.ans] = a.explanation
+            answers[a.text] = a.explanation
         return JsonResponse({
             'data': answers,
-            'time_Limit': str(question.time_Limit),
         })
 
 # called when submitting a question from website
@@ -134,9 +103,9 @@ def save_question_view(request, pk, id, qid):
         question_answers = Answer.objects.filter(question=question)
 
         for a in question_answers:
-            if a.isCorrect:
-                correct_answer = a.ans
-            if a_selected == a.ans:
+            if a.is_correct:
+                correct_answer = a.text
+            if a_selected == a.text:
                 answer = a
         
         result = {str(question): {
@@ -144,30 +113,30 @@ def save_question_view(request, pk, id, qid):
             'answered': a_selected,
             'explanation': answer.explanation}}
 
-        Response.objects.create(ques=question, ans=answer, std=student)
+        Response.objects.create(question=question, answer=answer, student=student)
         
         return JsonResponse({'result': result})
 
-def create_qb(request, pk):
+def create_section(request, pk):
     print(request.method)
-    form = Question_Bank_Form()
+    form = SectionForm()
     if request.method == "POST":
-        form = Question_Bank_Form(request.POST)
+        form = SectionForm(request.POST)
         if form.is_valid():
             instance = form.save()     
-            messages.success(request, 'Question Bank created successfully') 
+            messages.success(request, 'Section created successfully') 
             return redirect(f"/course/{instance.course.course_id}/")
         else:
             messages.error(request, 'Error creating Question Bank Form')    
     else:
-        form = Question_Bank_Form()   
-    return render(request, "question_banks/qb_create.html", {'form': form, 'pk':pk})
+        form = SectionForm()   
+    return render(request, "section/section_create.html", {'form': form, 'pk':pk})
 
-def create_questions(request, pk):
+def create_question(request, pk):
     print(request.method)
-    form = Question_Form()
+    form = QuestionForm()
     if request.method == "POST":
-        form = Question_Form(request.POST)
+        form = QuestionForm(request.POST)
         if form.is_valid():
             form.save()     
             messages.success(request, 'Question created successfully') 
@@ -176,5 +145,5 @@ def create_questions(request, pk):
         else:
             messages.error(request, 'Error creating Question')    
     else:
-        form = Question_Form()   
+        form = QuestionForm()   
     return render(request, "question/create_question.html", {'form': form, 'pk':pk})

@@ -1,8 +1,8 @@
 {% extends 'main/base.html' %}
 {% load static %}
 
-<script src="{% static '../../state/home.js' %}" defer></script>
 {% block scripts %}
+    <script src="{% static 'main/home.js' %}" defer></script>
     <link rel="stylesheet" href="../../static/css/home.css">
 {% endblock scripts %}
 
@@ -11,11 +11,32 @@ Home
 {% endblock %} 
 
 {% block loggedin %}
+<!-- Modal -->
+<div class="modal fade" id="courseStartModal" tabindex="-1" role="dialog" aria-labelledby="courseStartModal" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Confirm</h5>
+                <button type="button" id="modal-close-button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form id="course-form">
+                {% csrf_token %}
+                <div class="modal-body" id="modal-body-confirm"></div>
+                <div class="modal-footer">
+                    <button type="submit" id="start-button" class="btn btn-success">Yes</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
 <section class="d-flex justify-content-between m-4">
     <section>
         <div class="d-flex flex-wrap">
             {% if courses %}
-                {% for each in courses %}
+            {% for each in courses %}
                 <div class="card course-card m-3">
                     <img
                         src="../../static/cardImage.jpg"
@@ -23,7 +44,7 @@ Home
                         style="height:40%"
                     />
                     <div class="card-body">
-                        <a class="card-title stretched-link" href="{% url 'course:each_courses' each.course_id %}" style="text-decoration:none">{{ each.course_name }}</a>
+                        <a class="card-title stretched-link" href="{% url 'course:each-courses' each.course_id %}" style="text-decoration:none">{{ each.name }}</a>
                         <p class="card-title course-card-id">{{ each.course_id }}</p>
                     </div>
                 </div>
@@ -39,10 +60,12 @@ Home
                             your instructor, enter it here.
                         </p>
                         <form id="cr-form">
-                            {% csrf_token %}
-                            <input type="text" id="cr-code" name="cr-code" placeholder="E.g. specialturtle23" style="width : 100%;" required>
+                            <input type="text" id="cr-code" name="cr-code" style="width : 100%;" required>
                             <div class="d-grid gap-2 mt-2">
-                                <button type="submit" id="cr-button" class="btn btn-primary">Register</button>
+                                <button
+                                    type="submit"
+                                    class="btn btn-primary">Register
+                                </button>
                             </div>
                         </form>
                     </div>
@@ -57,7 +80,7 @@ Home
                             Press here to create a new course.
                         </p>
                         <div class="d-grid gap-2 mt-2">
-                            <a href="{% url 'course:course_create' %}" class="btn btn-primary">Create</a>
+                            <a href="{% url 'course:course-create' %}" class="btn btn-primary">Create</a>
                         </div>
                     </div>
                 </div>
@@ -65,10 +88,11 @@ Home
         </div>
     </section>
     {% if request.user.userprofile.student_id != "" %}
+    <!-- Today's Question Section -->
         <section class="col-3 d-flex m-2 justify">
             <div class="calendar flex-fill light">
                 <div class="calendar_header">
-                    <h1 class = "header_title">To-Do</h1>
+                    <h1 class = "header_title">New Questions</h1>
                 </div>
                 <div class="calendar_plan">
                     <div class="cl_plan">
@@ -77,62 +101,32 @@ Home
                     </div>
                 </div>
                 <div class="calendar_events">
-                    <p class="ce_title">Past due</p>
-                    {% if closed_aqbs %}
-                        {% for qb in closed_aqbs %}
+                    {% if questions_to_display %}
+                        {% for q, noti in questions_to_display.items %}
                             <hr />
                             <div class="event_item">
                                 <div class="ei_Dot dot_active"></div>
-                                <div class="ei_Title">{{ qb.time_to_send }} ({{ qb.question_bank.frequency }})</div>
+                                <div class="ei_Title">{{ q.text }}</div>
                                 <div class="ei_Copy">
-                                    <a class="stretched-link"
-                                       href="{% url 'course:questions:qb-view' pk=qb.question_bank.course.course_id id=qb.question_bank.question_bank_id %}"
+                                    <a class="stretched-link" 
+                                    href="{% url 'course:questions:question-view' pk=q.section.course.course_id id=q.section.section_id qid=q.question_id %}"
                                     ></a>
-                                    <b>{{ qb.question_bank.course }}:</b> {{ qb.question_bank.topic }}
+                                    <b>{{ q.section.course }}:</b> {{ q.section }}
+                                    <br />
+                                    Set Reminder: {{noti.time_to_send}}
                                 </div>
                             </div>
                         {% endfor %}
                     {% endif %}
-
-                    <p class="ce_title">Current Events</p>
-                    {% if open_aqbs %}
-                        {% for qb in open_aqbs %}
-                            <hr />
-                            <div class="event_item">
-                                <div class="ei_Dot dot_active"></div>
-                                <div class="ei_Title ">{{ qb.time_to_send }} ({{ qb.question_bank.frequency }})</div>
-                                <div class="ei_Copy">
-                                    <a class="stretched-link"
-                                       href="{% url 'course:questions:ques-view' pk=qb.question_bank.course.course_id id=qb.question_bank.question_bank_id qid=1 %}"
-                                    ></a>
-                                    <b>{{ qb.question_bank.course }}:</b> {{ qb.question_bank.topic }}
-                                </div>
-                            </div>
-                        {% endfor %}
-                    {% endif %}
-
-                    <p class="ce_title">Upcoming Events</p>
-                        {% if upcoming_aqbs %}
-                            {% for qb in upcoming_aqbs %}
-                                <hr />
-                                <div class="event_item">
-                                    <div class="ei_Dot dot_active"></div>
-                                    <div class="ei_Title">{{ qb.time_to_send }} ({{ qb.question_bank.frequency }})</div>
-                                    <div class="ei_Copy"><a>
-                                        <a>
-                                            <b>{{ qb.question_bank.course }}:</b> {{ qb.question_bank.topic }}
-                                        </a>
-                                    </a></div>
-                                </div>
-                            {% endfor %}
-                        {% endif %}
                 </div>
             </div>
-    </section>
+        </section>
     {% endif %}
 </section>
 {% endblock %} 
+
 {% block notloggin %}
+<!-- DEFAULT (not logged in) -->
 <header
     class="py-5 intro-image"
     style="background-image: url('../../static/cardImage-1.jpg')"

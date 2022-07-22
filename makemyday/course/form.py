@@ -11,15 +11,11 @@ class ManyToManyInput(TextInput):
 class CourseForm(ModelForm):
     class Meta:
         model = Course
-
-        fields = ['course_name', 'description', 'students', 'access_code', 'year', 'semester']
+        fields = ['name', 'description', 'students', 'access_code', 'year', 'semester']
     students = forms.ModelMultipleChoiceField(queryset=Student.objects.all(),widget=forms.CheckboxSelectMultiple)
 
 class InstructorForm(ModelForm):
     class Meta:
         model = Course
-        fields = ['course_name', 'description', 'instructors', 'access_code', 'year', 'semester']
-        widgets = {
-            'instructors': ManyToManyInput()
-        }
+        fields = ['name', 'description', 'instructor', 'access_code', 'year', 'semester']
     
