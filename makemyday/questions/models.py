@@ -1,26 +1,15 @@
 from django.db import models
 from main.models import Course, Student
-import random
 from datetime import datetime
-from django.utils import timezone
-from emailtask.tasks import send_email_task
-from django_celery_beat.models import CrontabSchedule, PeriodicTask
-import json
-import pytz
-
 
 # Create your models here.
-
-class Question_Bank(models.Model):
+class Section(models.Model):
     course = models.ForeignKey(Course, on_delete=models.CASCADE, default=None)
-    assigned_students = models.ManyToManyField(Student, through="Activated_Question_Bank")
-    question_bank_id = models.BigAutoField(primary_key=True, db_column="question_bank_id")
-    
+    section_id = models.BigAutoField(primary_key=True, db_column="section_id")
     topic = models.CharField(max_length=255, default="Topic")
+    # NOTE: sections within the same course do not have overlapping dates (not yet implemented)
     start_date = models.DateTimeField(null=True)
     end_date = models.DateTimeField(null=True)
-    number_of_attempts = models.IntegerField(default=3) # might move to question model
-    isRandom = models.BooleanField(default=False)
     DAILY = "DAILY"
     BIDIURNAL = "BIDIURNAL" # this means once every two days
     WEEKLY = "WEEKLY"
@@ -29,44 +18,33 @@ class Question_Bank(models.Model):
         (BIDIURNAL, "Every other day"),
         (WEEKLY, "Weekly"),
     )
-    frequency = models.CharField(choices = FREQUENCY_CHOICES, default=DAILY, max_length=120)
-
-    class Meta:
-        verbose_name_plural = 'Question_Banks'
+    frequency = models.CharField(choices = FREQUENCY_CHOICES, default=DAILY, max_length=120) # not yet implemented
 
     def __str__(self):
         return str(self.topic)
 
     def get_questions(self):
         questions = list(self.question_set.all())
-        if self.isRandom:
-            random.shuffle(questions)
         return questions
     
     def get_questions_for_student(self, student):
         questions = list(self.question_set.all())
-        if self.isRandom:
-            random.shuffle(questions)
-    
-        closed_qs = []
-        open_qs = []
-        upcoming_qs = []
+        past_questions = []
+        current_questions = []
+        future_questions = []
 
         for q in questions:
             question_Info = {}
-            question_Info['time_Limit'] = str(q.time_Limit)
-            question_Info['openDT'] = str(q.openDT)
-            question_Info['closeDT'] = str(q.closeDT)
-            question_Info['weight'] = str(q.weight)
+            question_Info['open_datetime'] = str(q.open_datetime)
             question_Info['question_id'] = str(q.question_id)
 
             if student:
                 # checks whether if the student has answered this question before or not
-                responseToQuestion = Response.objects.filter(ques=q, std=student).first()
+                responseToQuestion = Response.objects.filter(question=q, student=student).first()
                 # has response has an answer (wrong or correct)
-                if responseToQuestion and responseToQuestion.ans:
-                    answer = Answer.objects.get(answer_id=responseToQuestion.ans.answer_id)
-                    question_Info['answerIsCorrect'] = str(answer.isCorrect)
+                if responseToQuestion and responseToQuestion.answer:
+                    answer = Answer.objects.get(answer_id=responseToQuestion.answer.answer_id)
+                    question_Info['answerIsCorrect'] = str(answer.is_correct)
                 # has response but no answer (response was left blank)
                 elif responseToQuestion:
                     question_Info['answerIsCorrect'] = "False"
@@ -76,124 +54,66 @@ class Question_Bank(models.Model):
             else:
                 question_Info['answerIsCorrect'] = ""
             
-            if q.closeDT <= timezone.now():
-                closed_qs.append({str(q): question_Info})
-            elif q.openDT <= timezone.now() and q.closeDT >= timezone.now():
-                open_qs.append({str(q): question_Info})
-            elif q.openDT >= timezone.now():
-                upcoming_qs.append({str(q): question_Info})
+            if q.open_datetime.date() == datetime.today().date():
+                current_questions.append({str(q): question_Info})
+            elif q.open_datetime.date() < datetime.today().date():
+                past_questions.append({str(q): question_Info})
+            else:
+                future_questions.append({str(q): question_Info})
 
-        return closed_qs, open_qs, upcoming_qs
+        return past_questions, current_questions
 
-class Activated_Question_Bank(models.Model):
-    student = models.ForeignKey(Student, on_delete=models.CASCADE, default=None)
-    question_bank = models.ForeignKey(Question_Bank, on_delete=models.CASCADE, default=None)
-    schedule = models.OneToOneField(CrontabSchedule, on_delete=models.CASCADE, default=None, null=True)
-    time_to_send = models.TimeField(null=True)
-    score = models.DecimalField(max_digits=6, decimal_places=2, null=True)
+# This model is not really necessary, but is only kept for the sake of the statistics page
+# should really be deleted since score can be calculated based on the students' responses
+# class SectionScore(models.Model):
+#     student = models.ForeignKey(Student, on_delete=models.CASCADE, default=None)
+#     section = models.ForeignKey(Section, on_delete=models.CASCADE, default=None)
+#     score = models.DecimalField(max_digits=6, decimal_places=2, null=True)
 
-    def __str__(self):
-        return str(self.pk)
+#     def __str__(self):
+#         return str(self.pk)
 
-    def save(self, *args, **kwargs):
-        if self._state.adding:
-            # SET UP AUTOMATED SENDING OF EMAILS HERE
-            # resource: https://django-celery-beat.readthedocs.io/en/latest/#:~:text=To%20create%20a%20periodic%20task,schedule%2C%20created%20%3D%20IntervalSchedule.
-            first_name, email, topic, periodicTaskName = self.get_periodic_task_attributes()
-            self.schedule = CrontabSchedule.objects.create(
-                minute=str(self.time_to_send)[3:5],
-                hour=str(self.time_to_send)[0:2],
-                day_of_week='*',
-                day_of_month='*',
-                month_of_year='*',
-                timezone='US/Eastern'
-            )
-            super(Activated_Question_Bank, self).save(*args, **kwargs)
-            PeriodicTask.objects.create(
-                crontab=self.schedule,
-                name=periodicTaskName,
-                task='send_email_task',
-                args=json.dumps([self.id]),
-            )
-            print(self.id)
-        else:
-            super(Activated_Question_Bank, self).save(*args, **kwargs)
-    
-    # This function does not run when deleting multiple aqbs
-    def delete(self, *args, **kwargs):
-        if self.schedule:
-            self.schedule.delete()
-        super(Activated_Question_Bank, self).delete(*args, **kwargs)
-
-    def updateEmail(self):
-        pass
-    
-    def get_periodic_task_attributes(self):
-        first_name = str(self.student.user_profile.user.first_name)
-        email = str(self.student.user_profile.user.email)
-        topic = str(self.question_bank)
-        periodicTaskName = f'{str(self.pk)} Email Reminder: {str(self.student)}, {topic}'
-        return first_name, email, topic, periodicTaskName
-
-    def computeScore(self):
-        closed_qs = self.question_bank.question_set.filter(closeDT__lte=timezone.now())
-        for q in closed_qs:
-            # if this closed question does not have a response, create one that is not answered
-            if not Response.objects.filter(std=self.student, ques=q):
-                Response.objects.create(std=self.student, ques=q, ans=None)
-
-        responses = Response.objects.filter(std=self.student, ques__in=self.question_bank.question_set.all())
-        # numberOfResponses is the total number of questions the student answered or Did not answer. 
-        # i.e. the number of questions with a green or red cover in the question bank page
-        # NOTE: This does not equal to the number of questions in a question bank
-        numberOfResponses = len(responses)
-        numberOfCorrect = 0
-        for res in responses:
-            correctAns = res.ques.answer_set.get(isCorrect=True)
-            if res.ans == correctAns:
-                numberOfCorrect += 1
+#     def compute_score(self):
+#         responses = Response.objects.filter(student=self.student, question__in=self.section.question_set.all())
+#         # numberOfResponses is the total number of questions the student answered or Did not answer. 
+#         # NOTE: This does not equal to the number of questions in a question bank
+#         number_of_responses = len(responses)
+#         number_of_correct = 0
+#         for res in responses:
+#             correctAns = res.question.answer_set.get(is_correct=True)
+#             if res.answer == correctAns:
+#                 number_of_correct += 1
         
-        if numberOfCorrect == 0:
-            self.score = 0
-        else:
-            self.score = numberOfCorrect/numberOfResponses * 100
-    
-    # def sendEmail(self):
-    #     email = self.student.user_profile.user.email
-    #     first_name = self.student.user_profile.user.first_name
-    #     topic = str(self.question_bank)
-    #     send_email_task.apply_async((first_name, email, topic), countdown=5)
+#         if number_of_correct == 0:
+#             self.score = 0
+#         else:
+#             self.score = number_of_correct/number_of_responses * 100
+#         self.save()
 
 class Question(models.Model):
-    question_bank = models.ForeignKey(Question_Bank, on_delete=models.CASCADE, default=None)
-
+    section = models.ForeignKey(Section, on_delete=models.CASCADE, default=None)
     question_id = models.BigAutoField(primary_key=True, db_column="question_id")
-    ques = models.TextField(default="")
+    text = models.TextField(default="")
     order = models.IntegerField(default=0)
-    time_Limit = models.IntegerField(default=60, help_text="duration of the question in minutes")
-    openDT = models.DateTimeField(default=datetime.now)
-    closeDT = models.DateTimeField(default=datetime.now)
-    weight = models.IntegerField(default=1)
+    open_datetime = models.DateTimeField(default=datetime.now)
 
     def __str__(self):
-        # return str(self.ques)
-        return f"{str(self.ques)}"
+        return f"{str(self.text)}"
 
     def get_answers(self):
        return self.answer_set.all()
 
 class Answer(models.Model):
     question = models.ForeignKey(Question, on_delete=models.CASCADE, default=None)
-
     answer_id = models.BigAutoField(primary_key=True, db_column="answer_id")
-    ans = models.TextField(default="")
-    isCorrect = models.BooleanField(default=False)
+    text = models.TextField(default="")
+    is_correct = models.BooleanField(default=False)
     explanation = models.TextField(default="")
 
     def __str__(self):
-        return f"question: {self.question.ques}, answer: {self.ans}, correct: {self.isCorrect}"
+        return f"question: {self.question.text}, answer: {self.text}, correct: {self.is_correct}"
 
 class Response(models.Model):
-    ques = models.ForeignKey(Question, on_delete=models.CASCADE, default=None)
-    ans = models.ForeignKey(Answer, on_delete=models.CASCADE, blank=True, null=True, default=None)
-    std = models.ForeignKey(Student, on_delete=models.CASCADE, default=None)
+    question = models.ForeignKey(Question, on_delete=models.CASCADE, default=None)
+    answer = models.ForeignKey(Answer, on_delete=models.CASCADE, blank=True, null=True, default=None)
+    student = models.ForeignKey(Student, on_delete=models.CASCADE, default=None)

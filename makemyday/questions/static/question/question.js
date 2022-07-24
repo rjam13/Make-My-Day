@@ -13,50 +13,6 @@ var theFormItself =  document.getElementById('question-form');
 corrAnsDiv.style.display = 'none'
 yourAnsDiv.style.display = 'none'
 theFormItself.style.display = 'none';
-var timer;
-
-const activateTimer = (time) => {
-    if (time.toString().length < 2) {
-        timerBox.innerHTML = `<b>0${time}:00</b>`;
-    } else {
-        timerBox.innerHTML = `<b>${time}:00</b>`;
-    }
-
-    let minutes = time - 1;
-    let seconds = 60;
-    let displaySeconds;
-    let displayMinutes;
-
-    timer = setInterval(() => {
-        seconds--;
-        if (seconds < 0) {
-            seconds = 59;
-            minutes--;
-        }
-        if (minutes.toString().length < 2) {
-            displayMinutes = "0" + minutes;
-        } else {
-            displayMinutes = minutes;
-        }
-
-        if (seconds.toString().length < 2) {
-            displaySeconds = "0" + seconds;
-        } else {
-            displaySeconds = seconds;
-        }
-
-        if (minutes == 0 && seconds == 0) {
-            timerBox.innerHTML = "<b>00:00</b>";
-            setTimeout(() => {
-                clearInterval(timer);
-                alert("time over");
-                sendData();
-            }, 500);
-        }
-
-        timerBox.innerHTML = `<b>${displayMinutes}:${displaySeconds}</b>`;
-    }, 1000);
-};
 
 // setting up the question from the corresponding question bank indicated in the URl
 $.ajax({
@@ -68,7 +24,6 @@ $.ajax({
             showResults(response.result);
         } else {
             const data = response.data;
-            const time_Limit = response.time_Limit;
             console.log(data);
             for (const [answer, explanation] of Object.entries(data)) {
                 // {question: [answers in an array]} => [question, answers]
@@ -80,7 +35,6 @@ $.ajax({
                 </div>
                 `;
             }
-            activateTimer(time_Limit);
         }
     },
     error: function (error) {
@@ -127,9 +81,12 @@ const sendData = () => {
 questionForm.addEventListener("submit", (e) => {
     e.preventDefault();
 <<<<<<< HEAD
+<<<<<<< HEAD
     clearInterval(timer);  
 =======
     clearInterval(timer);
+>>>>>>> main
+=======
 >>>>>>> main
     theFormItself.style.display = 'none';
     sendData();
@@ -187,4 +144,3 @@ function showResults(result) {
     answerPrompt.append(ansDiv);
     feedbackSymbol.append(feedbackSymbolDiv);
 }
-

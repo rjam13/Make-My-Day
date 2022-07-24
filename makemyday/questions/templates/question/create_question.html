@@ -7,7 +7,7 @@
   <div class="row justify-content-center">
     <div class="col-12">
       <div class="pt-4">
-      <form method="POST" action="{% url 'course:questions:create_ques' pk=pk %}" class="form-grp">
+      <form method="POST" action="{% url 'course:questions:create-question' pk=pk %}" class="form-grp">
         {% csrf_token %}
         {{ form.as_p }}
         {{ form.media }}

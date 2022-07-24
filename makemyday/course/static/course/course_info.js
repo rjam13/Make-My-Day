@@ -1,118 +1,53 @@
-const modalBtns = [...document.getElementsByClassName("modal-button")];
-const modalBody = document.getElementById("modal-body-confirm");
-const csrf = document.getElementsByName("csrfmiddlewaretoken");
 const url = window.location.href;
+const current_section_title = document.getElementById("current-section-title");
+const section_id = current_section_title.getAttribute("data-section-id");
 
-modalBtns.forEach((modalBtn) =>
-    modalBtn.addEventListener("click", () => {
-        const question_bank_id = modalBtn.getAttribute("data-pk");
-        const topic = modalBtn.getAttribute("data-question-bank");
-        const start_date = modalBtn.getAttribute("data-start-date");
-        const end_date = modalBtn.getAttribute("data-end-date");
-        const number_of_attempts = modalBtn.getAttribute("data-num-attempts");
-        const isRandom = modalBtn.getAttribute("data-isRandom");
-        const frequency = modalBtn.getAttribute("data-frequency");
+// setting up the quiz from the corresponding section indicated in the URl
+$.ajax({
+    type: "GET",
+    url: `${url}sections/${section_id}/data`,
+    success: function (response) {
+        // questions is the array of questions with each value as {question: [info]}
+        const past_questions = response.past_questions;
+        const current_questions = response.current_questions;
+        let buttonIDs = [];
 
-        modalBody.innerHTML = `
-        <div class="h5 mb-3">Are you sure you want to begin <b>${topic}</b>?</div>
-        <div class="text-muted">
-            <ul>
-                <li>Start date: <b>${start_date}</b></li>
-                <li>End date: <b>${end_date}</b></li>
-                <li>Number of attempts per question: <b>${number_of_attempts}</b></li>
-                <li>Frequency: <b>${frequency}</b></li>
-            </ul>
-            <p>Please enter a time to receive the questions <b>${frequency}</b>.</p>
-            <div id="error"></div>
-            <input type="time" id="noti" name="noti" required>
-        </div>
-        `;
+        past_questions.forEach((element) => {
+            for (const [question, info] of Object.entries(element)) {
+                // {question: [info in an array]} => [question, info]
 
-        // Comments below is a possible approach to dealing with weekly notifications
-        // html = `
-        // <div class="h5 mb-3">Are you sure you want to begin <b>${topic}</b>?</div>
-        // <div class="text-muted">
-        //     <ul>
-        //         <li>Start date: <b>${start_date}</b></li>
-        //         <li>End date: <b>${end_date}</b></li>
-        //         <li>Number of attempts per question: <b>${number_of_attempts}</b></li>
-        //         <li>Frequency: <b>${frequency}</b></li>
-        //     </ul>
-        // `;
-        // 
-        // if (frequency == "WEEKLY") {
-        //   html += `
-        //   <p>Please enter a day and time to receive the questions <b>${frequency}</b>.</p>
-        //   <div id="error"></div>
-        //   <select name="day" id="day" required>
-        //       <option value="sunday">Sunday</option>
-        //       <option value="monday">Monday</option>
-        //       <option value="tuesday">Tuesday</option>
-        //       <option value="wednesday">Wednesday</option>
-        //       <option value="thursday">Thursday</option>
-        //       <option value="friday">Friday</option>
-        //       <option value="saturday">Saturday</option>
-        //   </select>
-        //   <input type="time" id="noti" name="noti" required>
-        //   `
-        // } else {
-        //   html += `
-        //   <p>Please enter a time to receive the questions <b>${frequency}</b>.</p>
-        //       <div id="error"></div>
-        //       <input type="time" id="noti" name="noti" required></input>
-        //   `
-        // }
-        // 
-        // html += `
-        // <p>Please enter a time to receive the questions <b>${frequency}</b>.</p>
-        // <div id="error"></div>
-        // <input type="time" id="noti" name="noti" required></input>
-        // </div>
-        // `;
+                document.getElementById("past-box").innerHTML += `
+                        <div class="mb-2, container, p-3, text-light, h6,id="question${info["question_id"]}">
+                        <button class="btn btn-link" style="text-decoration: none;" id="button${info["question_id"]}">${question}</button>
+                        <p>Opened at ${info["open_datetime"].slice(0,16)}</p>
 
-        // const day_notification = document.getElementById("day");
-        const form = document.getElementById("noti-form");
-        const notification = document.getElementById("noti");
-        const errorElement = document.getElementById("error");
-
-        $('#modal-body-confirm').ready(function(){
-
-            // clears the event listeners
-            if ( jQuery._data( form, "events" ) !== undefined) {
-                $('#noti-form').off('submit');
+                    </div>
+                `;
+                buttonIDs.push(info["question_id"]);
             }
-
-            $('#noti-form').on('submit',function(e){
-                e.preventDefault();
-                console.log(`signed up for ${topic}`);
-                let messages = [];
-                if (notification.value === "" || notification.value === null) {
-                    messages.push("Time for notification is required");
-                }
-                if (messages.length > 0) {
-                    errorElement.innerHTML = messages.join(", ");
-                }
-
-                const data = {};
-                data["csrfmiddlewaretoken"] = csrf[0].value;
-                data["time"] = String(notification.value);
-
-                $.ajax({
-                    type: "POST",
-                    url: `${url}question-banks/${question_bank_id}/activate-qb/`,
-                    data: data,
-                    success: function (response) {
-                        console.log(response);
-                    },
-                    error: function (error) {
-                        console.log(error);
-                    },
-                });
-
-                $("[data-dismiss=modal]").trigger({ type: "click" });
-                $('#noti-form').off('submit');
-            });
-
         });
-    })
-);
+
+        current_questions.forEach((element) => {
+            for (const [question, info] of Object.entries(element)) {
+
+                document.getElementById("today-box").innerHTML += `
+                        <div class="mb-2, container, p-3, text-light, h6, id="question${info["question_id"]}">
+                        <button class="btn btn-link" style="text-decoration: none;" id="button${info["question_id"]}">${question}</button>
+                        <p>Opened today</p>
+                    </div>
+                `;
+
+                buttonIDs.push(info["question_id"]);
+            }
+        });
+
+        buttonIDs.forEach(function (buttonID) {
+            $("#button" + buttonID).click(function () {
+                window.location.href = url + `sections/${section_id}/` + buttonID;
+            });
+        });
+    },
+    error: function (error) {
+        console.log(error);
+    },
+});

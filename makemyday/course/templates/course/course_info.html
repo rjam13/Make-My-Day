@@ -12,28 +12,6 @@
 {% load humanize %} 
 {% block content %} 
 
-<!-- Modal -->
-<div class="modal fade" id="questionBankStartModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="exampleModalLabel">Activate?</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <form id="noti-form">
-                {% csrf_token %}
-                <div class="modal-body" id="modal-body-confirm"></div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-danger" data-dismiss="modal">No</button>
-                    <button type="submit" id="start-button" class="btn btn-success">Yes</button>
-                </div>
-            </form>
-        </div>
-    </div>
-</div>
-
     <!-- Page Content-->
     <div class="container px-4 px-lg-5">
         <!-- Heading Row-->
@@ -42,26 +20,45 @@
             <div class="col-lg-5">
                 <div class="d-flex" >
                     <div class="col flex-fill">
-                        <h1 class="font-weight-light">{{each_one.course_name}}</h1>
-                        <p>{{ instructors }}</p>
-                        <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Rem magni quas ex numquam, maxime minus quam molestias corporis quod, ea minima accusamus.</p>
+                        <h1 class="font-weight-light">{{each_one.name}}</h1>
+                        <p>{{ instructor }}</p>
+                        <p class="mb-0"><em>Description</em></p>
+                        <p>{{ each_one.description }}</p>
+                        {% if request.user.userprofile.student_id != "" %}
+                        <hr />
+                        <p class="mb-0">Set Reminder: <b>{{ notification.time_to_send }}</b></p>
+                        <p class="text-muted">This daily reminder is personal to your account. Depending whether there are questions available for the day, you will be sent an email notification. Go to <b>Options</b> to change the time.</p>
+                        {% elif request.user.userprofile.instructor_id != "" %}
+                        <hr />
+                        <p class="mb-0">Students: 
+                        {% for s in students %}
+                            {{s}},
+                        {% endfor %}
+                        </p>
+                        {% endif %}
                     </div>
                     <div class="col d-flex justify-content-end">
                         <div class="dropdown">
-                            <button class="navbar-toggler" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-three-dots-vertical" viewBox="0 0 16 16">
-                                <path d="M9.5 13a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0zm0-5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0zm0-5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0z"/>
-                            </svg></button>
-                            {% if request.user.userprofile.instructor_id != "" %}
-                                <ul class="dropdown-menu">
-                                    <li><a class="dropdown-item" href="{% url 'course:course_edit' each_one.course_id %}">Update Course</a></li>
-                                    <li><a class="dropdown-item" href="{% url 'course:course_delete' each_one.course_id %}">Delete Course</a></li>
-                                </ul>
+                            <button class="btn btn-sm dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                Options
+                            </button>
+                            <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                                {% if request.user.userprofile.instructor_id != "" %}
+                                <a class="dropdown-item" href="{% url 'course:course-edit' each_one.course_id %}">
+                                    Update Course
+                                </a>
+                                <a class="dropdown-item" href="{% url 'course:course-delete' each_one.course_id %}">
+                                    Delete Course
+                                </a>
                                 {% else %}
-                                <ul class="dropdown-menu">
-                                    <li><a class="dropdown-item" href="{% url 'course:course_edit' each_one.course_id %}">Change Reminder Time</a></li>
-                                    <li><a class="dropdown-item" href="{% url 'course:course_delete' each_one.course_id %}">Un-Enroll</a></li>
-                                </ul>
-                            {% endif %}
+                                <a class="dropdown-item" href="{% url 'course:course-edit' each_one.course_id %}">
+                                    Change Reminder Time
+                                </a>
+                                <a class="dropdown-item" href="{% url 'course:course-delete' each_one.course_id %}">
+                                    Un-Enroll
+                                </a>
+                                {% endif %}
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -78,10 +75,9 @@
                     <div class="card h-100">
                         <div class="card-body">
                             <h2 class="card-title">Course Statistics</h2>
-                            <p class="card-text">Lorem ipsum dolor sit amet, consectetur adipisicing elit. Rem magni quas ex numquam, maxime minus quam molestias corporis quod, ea minima accusamus.</p>
+                            <p class="card-text">Here you will be able to see your students' score and response to each section.</p>
                         </div>
                         <div class="card-footer"><a
-                                href="{% url 'course:course_stats_view' each_one.course_id %}"
                                 class="btn btn-secondary float-left px-4"
                         >Statistics</a></div>
                     </div>
@@ -89,59 +85,101 @@
                 <div class="col-md-4 mb-5">
                     <div class="card h-100">
                         <div class="card-body">
-                            <h2 class="card-title">Create a question bank</h2>
-                            <p class="card-text">Lorem ipsum dolor sit amet, consectetur adipisicing elit. Quod tenetur ex natus at dolorem enim! Nesciunt pariatur voluptatem sunt quam eaque, vel, non in id dolore voluptates quos eligendi labore.</p>
+                            <h2 class="card-title">Create a section</h2>
+                            <p class="card-text">Here you can add a new section to the course. <b>NOTE</b>: only section can be activated at a time.</p>
                         </div>
-                        <div class="card-footer"><a class="btn btn-primary btn" href="question-banks/create-qb">
-                            Create a Question Bank
+                        <div class="card-footer"><a class="btn btn-primary btn" href="{% url 'course:questions:create-section' pk=each_one.course_id %}">
+                            Create a section
                         </a></div>
                     </div>
                 </div>
             {% endif %}
-            <h4 class="text-info mb-0">Available Question Banks</h4>
-            <p class="text-muted mb-3">These question banks will appear in your homepage once activated.</p>
-            <div class="card-body"><p class="text-white m-0">{% for qb in open_qbs %}
-                <hr />
-                <button
-                        class="btn btn btn-link modal-button"
-                        data-pk="{{qb.question_bank_id}}"
-                        data-question-bank="{{qb.topic}}"
-                        data-num-attempts="{{qb.number_of_attempts}}"
-                        data-start-date="{{qb.start_date}}"
-                        data-end-date="{{qb.end_date}}"
-                        data-frequency="{{qb.frequency}}"
-                        data-toggle="modal"
-                        data-target="#questionBankStartModal">{{qb.topic}}
-                </button>
-                <a class="btn btn-success btn" href="question-banks/create-question" style="float: right;">
-                    Add Questions
-                </a>
-            {% endfor %}
 
-                {% if upcoming_qbs %}
-                    <h5 class="text-muted mb-0 mt-3">Upcoming Question Banks</h5>
-                    <p class="text-muted mb-3">These question banks will appear in your homepage inactive until their open dates.</p>
-                    {% for qb in upcoming_qbs %}
-                        <hr />
-                        <button
-                                class="btn btn btn-link modal-button"
-                                data-pk="{{qb.question_bank_id}}"
-                                data-question-bank="{{qb.topic}}"
-                                data-num-attempts="{{qb.number_of_attempts}}"
-                                data-start-date="{{qb.start_date}}"
-                                data-end-date="{{qb.end_date}}"
-                                data-frequency="{{qb.frequency}}"
-                                data-toggle="modal"
-                                data-target="#questionBankStartModal">{{qb.topic}}
-                        </button><br>
-                    {% endfor %}
-                {% endif %}
-
-                {% if request.user.userprofile.instructor_id != "" %}
-
-                {% endif %}
-                </p>
+            <!-- Question Section -->
+            <!-- check static/course/course_info.js -->
+            {% if open_section %}
+            <hr />
+            <h5 id="current-section-title"
+                class="text-primary mb-0"
+                data-section-id="{{ open_section.section_id }}"
+            >Current Section: {{ open_section }}</h5>
+            {% if request.user.userprofile.instructor_id != "" %}
+            <a class="btn btn-success btn" style="float: right;" href="{% url 'course:questions:create-question' pk=each_one.course_id %}">
+                Add Questions
+            </a>
+            {% endif %}
+            <p class="text-muted mb-0">{{ open_section.start_date }} - {{ open_section.end_date}}</p>
+            <p class="mb-3">Below you will see the questions currently active.</p>
+            <div class="card mb-5">
+                <div class="card-header">
+                    <ul class="nav nav-tabs card-header-tabs pull-right"  id="myTab" role="tablist">
+                        <li class="nav-item">
+                            <a class="nav-link active" id="today-tab" data-toggle="tab" href="#today" role="tab" aria-controls="today" aria-selected="true">Today</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" id="past-tab" data-toggle="tab" href="#past" role="tab" aria-controls="past" aria-selected="false">Past</a>
+                        </li>
+                    </ul>
+                </div>
+                <div class="card-body">
+                    <div class="tab-content" id="myTabContent">
+                        <div class="tab-pane fade show active" id="today" role="tabpanel" aria-labelledby="today-tab">
+                            <div id="today-box"></div>
+                        </div>
+                        <div class="tab-pane fade" id="past" role="tabpanel" aria-labelledby="past-tab">
+                            <div id="past-box"></div>
+                        </div>
+                    </div>
+                </div>
             </div>
-        </div>
+            {% endif %}
+
+            <!-- Other Sections Section -->
+            {% if upcoming_sections or closed_sections %}
+            <h4 class="text mb-0">Other sections</h4>
+            <p class="text-muted mb-3">Below you will see all the other sections for this course. One section is activated at a time. All the questions you will receive will be from the currently activated section.</p>
+            <p class="text-white m-0">
+                
+                {% if upcoming_sections %}
+                <hr />
+                <h5 class="text mb-0">Upcoming sections</h5>
+                <p class="text-muted mb-3">These sections are not yet open and questions from these sections are not answerable.</p>
+                
+                {% for section in upcoming_sections|dictsort:"start_date" %}
+                <hr />
+                <a>{{ section.topic }}</a>
+                {% if request.user.userprofile.instructor_id != "" %}
+                <a class="btn btn-success btn m-1" href="{% url 'course:questions:section-view' pk=section.course.course_id id=section.section_id %}" style="float: right;">
+                    Go to section
+                </a>
+                {% endif %}
+                <br>
+                <a class="text-muted text-decoration-none mb-3" >{{ section.start_date }} - {{ section.end_date}}</a>
+                {% endfor %}
+
+                {% endif %}
+                
+                {% if closed_sections %}
+                <hr />
+                <h5 class="text mb-0">Closed sections</h5>
+                <p class="text-decoration-none mb-3">These sections are closed and questions from these sections are not answerable.</p>
+
+                {% for section in closed_sections|dictsort:"start_date" %}
+                <hr />
+                <a>{{ section.topic }}</a>
+                {% if request.user.userprofile.instructor_id != "" %}
+                <a class="btn btn-success btn m-1" style="float: right;">
+                    Go to section
+                </a>
+                {% endif %}
+                <br>
+                <a class="text-muted text-decoration-none mb-3" >{{ section.start_date }} - {{ section.end_date}}</a>
+                {% endfor %}
+
+                {% endif %}
+            
+            </p>
+            {% endif %}
     </div>
+</div>
 {% endblock %}

@@ -6,7 +6,7 @@
 
     <form method="post">
         {% csrf_token %}
-        <span class="text-center text-secondary">Are u sure want to delete "{{object}}" ?</span>
+        <span class="text-center text-secondary">Are you sure want to delete "{{object}}" ?</span>
 
         <input type="submit" value="Submit" class="btn btn-secondary">
         <a href="{% url 'main:home' %}" class="btn btn-info ml-3">Back to Courses</a>
