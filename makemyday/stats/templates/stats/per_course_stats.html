@@ -3,10 +3,13 @@
 
 {% block content %}
 
-
+<h1 class="d-flex justify-content-center flex-nowrap">Statistics for {{course.name}}</h1>
+<br><br>
 {% for table in tables %}
-    <h3 class="text-info">{{table.0}}</h3>
+<div style="padding-left: 50px">
+    <h3>{{table.0}}</h3>
     {% render_table table.1 %}
+</div>
     <br>
 {% endfor %}
 
