@@ -28,19 +28,21 @@ https://docs.docker.com/get-docker/
   
 In the command line, make your way to the "makemyday" directory (the outer one, not the app) and run:  
 **docker-compose up**  
-
-# Docker Setup with Windows
-Proceed to website and install Docker for Windows: https://docs.docker.com/get-docker/
-
-Go to Windows Features on your computer and enable Hyper-V and Containers
-
-If a message stating WSL 2 installation is incomplete pops up, go to this link https://aka.ms/wsl2kernel and
-download the latest package. 
-
-In the command line, make your way to the "makemyday" directory (the outer one, not the app) and run:  
-**docker-compose up**
-
   
+The website should be on http://127.0.0.1:8000  
+  
+# Docker Setup with Windows  
+Proceed to website and install Docker for Windows: https://docs.docker.com/get-docker/  
+  
+Go to Windows Features on your computer and enable Hyper-V and Containers  
+  
+If a message stating WSL 2 installation is incomplete pops up, go to this link https://aka.ms/wsl2kernel and  
+download the latest package.   
+  
+In the command line, make your way to the "makemyday" directory (the outer one, not the app) and run:  
+**docker-compose up**  
+  
+   
 # Running without Docker:  
   
 If the above method did not work, below is a more detailed alternative way.  
