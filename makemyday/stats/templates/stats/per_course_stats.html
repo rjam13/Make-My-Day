@@ -3,9 +3,10 @@
 
 {% block content %}
 
-
+<h1>Statistics for {{course.name}}</h1>
+<br><br>
 {% for table in tables %}
-    <h3 class="text-info">{{table.0}}</h3>
+    <h3>{{table.0}}</h3>
     {% render_table table.1 %}
     <br>
 {% endfor %}

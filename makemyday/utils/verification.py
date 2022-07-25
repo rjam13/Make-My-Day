@@ -20,7 +20,7 @@ def isStudent(request):
 
 def isInstructorOfCourse(request, course_id):
     instructor_id = request.user.userprofile.instructor_id
-    if Course.objects.get(course_id=course_id).instructors.filter(instructor_id=instructor_id).exists():
+    if Course.objects.get(course_id=course_id).instructor.instructor_id == instructor_id:
         return True
     else:
         return False
