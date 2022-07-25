@@ -1,5 +1,6 @@
 from http.client import responses
 from django.shortcuts import render
+from main.models import Student
 from questions.models import Question
 
 from stats.helpers import calculate_student_section_score
@@ -32,14 +33,19 @@ def per_course_stats_view(request, pk):
     for section in sections:
         data = []
         questions = Question.objects.filter(section=section)
-        print(questions)
-        for question in questions:
-            responses = Response.objects.filter(question=question)
-            for response in responses:
-                score = calculate_student_section_score(response.student, section)
-                first = response.student.user_profile.user.first_name
-                last = response.student.user_profile.user.last_name
-                data.append({"student": first + " " + last, "score": score})
+        responses = Response.objects.filter(question__in=questions)
+        student_id_set = set()
+        for response in responses:
+            student_id_set.add(response.student.student_id)
+        for student_id in student_id_set:
+            student = Student.objects.get(student_id=student_id)
+            score = calculate_student_section_score(student, section)
+            f_name = student.user_profile.user.first_name
+            l_name = student.user_profile.user.last_name
+            data.append({"student": f_name + " " + l_name, "score": score})
+        
+        
+                
         tables.append((section, SectionScoreTable(data)))
     
 
