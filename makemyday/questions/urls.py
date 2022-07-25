@@ -11,7 +11,7 @@ urlpatterns = [
     path('<int:id>/<int:qid>/', question_view, name='question-view'),
     path('<int:id>/<int:qid>/data/', question_data_view, name='question-data-view'),
     path('<int:id>/<int:qid>/save/', save_question_view, name='save-question-view'),
-    # path("<int:id>/statistics/", statsViews.per_section_stats_view, name='section-stats-view'),
+    path("<int:id>/statistics/", statsViews.per_section_stats_view, name='section-stats-view'),
     path("create-qb", create_section, name='create-section'),
     path("create-question", create_question, name='create-question'),
 ]

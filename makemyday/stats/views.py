@@ -12,15 +12,29 @@ from django.contrib.auth.decorators import login_required
 from utils.verification import isInstructorOfCourse
 from django.http import HttpResponseNotFound
 
-# @login_required
-# def per_section_stats_view(request, pk, id):
-#     if not isInstructorOfCourse(request, pk):
-#         return HttpResponseNotFound('<h1>You are not an instructor of this course</h1>')
-#     section = Section.objects.get(section_id=id)
-#     section_score = SectionScore.objects.filter(section=section)
-#     table = SectionScoreTable(section_score)
+@login_required
+def per_section_stats_view(request, pk, id):
+    if not isInstructorOfCourse(request, pk):
+        return HttpResponseNotFound('<h1>You are not an instructor of this course</h1>')
 
-#     return render(request, "stats/per_section_stats.html", {"table": table})
+    course = Course.objects.get(course_id=pk)
+    section = Section.objects.get(section_id=id)
+
+    data = []
+    questions = Question.objects.filter(section=section)
+    responses = Response.objects.filter(question__in=questions)
+    student_id_set = set()
+    for response in responses:
+        student_id_set.add(response.student.student_id)
+    for student_id in student_id_set:
+        student = Student.objects.get(student_id=student_id)
+        score = calculate_student_section_score(student, section)
+        f_name = student.user_profile.user.first_name
+        l_name = student.user_profile.user.last_name
+        data.append({"student": f_name + " " + l_name, "score": score})
+
+    table = (section, SectionScoreTable(data))
+    return render(request, "stats/per_section_stats.html", {"course": course, "section": section, "table": table})
 
 @login_required
 def per_course_stats_view(request, pk):
@@ -44,8 +58,6 @@ def per_course_stats_view(request, pk):
             l_name = student.user_profile.user.last_name
             data.append({"student": f_name + " " + l_name, "score": score})
         
-        
-                
         tables.append((section, SectionScoreTable(data)))
     
 
