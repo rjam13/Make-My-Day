@@ -4,7 +4,6 @@ from questions.models import Question
 
 from stats.helpers import calculate_student_section_score
 from main.models import Course
-from main.models import Student
 from questions.models import Response
 from questions.models import Section
 from stats.tables import SectionScoreTable
